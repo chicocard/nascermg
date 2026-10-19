@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nascer em Minas</title>
+<style>
+/* Layout: mapa em tela cheia à direita, painel narrativo à esquerda, barra de controle no topo.
+   Tokens: neutros frios; azul como acento; rampa sequencial azul, divergente azul/vermelho. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --surface-2:#e9edf1; --fg:#16212c; --fg-2:#46525f; --muted:#7a8692; --line:#d3dae1;
+  --accent:#1c5cab; --accent-fg:#ffffff; --accent-soft:#dbe8f9; --map:#e3e8ee; --map-line:#ffffff;
+  --font-display:"Literata",Georgia,"Times New Roman",serif; --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --panel-w:400px;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#10151b; --surface:#161b21; --surface-2:#1e252d; --fg:#e8ecf0; --fg-2:#b7c0ca; --muted:#8a95a1; --line:#2b343e;
+         --accent:#6da7ec; --accent-fg:#0b1420; --accent-soft:#1b3050; --map:#1a2029; --map-line:#10151b; color-scheme:dark }
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:14px;line-height:1.5;overflow:hidden}
+h1,h2,h3{margin:0;font-weight:600}
+h1{font-family:var(--font-display);font-size:1.1rem}
+h2{font-family:var(--font-display);font-size:1.5rem;line-height:1.2;text-wrap:balance}
+.eyebrow{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+button,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.topbar{position:fixed;inset:0 0 auto 0;height:56px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 16px;z-index:5}
+.topbar .brand{display:flex;flex-direction:column;line-height:1.15;flex:0 0 auto;white-space:nowrap}
+.topbar .btn.primary{flex:0 0 auto;white-space:nowrap;min-width:118px}
+.ctl{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--fg-2)}
+.ctl select{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:.8rem;max-width:280px}
+.btn{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font-size:.8rem;font-weight:500}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn:hover{border-color:var(--accent)}
+.spacer{flex:1}
+.modo{font-size:.74rem;color:var(--muted);white-space:nowrap}
+
+#mapa{position:fixed;top:56px;left:var(--panel-w);right:0;bottom:0;background:var(--map)}
+.painel{position:fixed;top:56px;left:0;bottom:0;width:var(--panel-w);background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:4}
+.cena{padding:18px 20px 12px;overflow:auto;flex:1;display:flex;flex-direction:column;gap:12px}
+.cena .texto{font-size:.95rem;color:var(--fg);max-width:60ch}
+.cena .modelo{font-size:.8rem;color:var(--fg-2);border-left:3px solid var(--accent);padding-left:10px}
+.cena .fonte{font-size:.72rem;color:var(--muted)}
+.cena .n{font-size:.72rem;color:var(--muted)}
+.progresso{height:3px;background:var(--surface-2)}
+.progresso i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s linear}
+.nav{display:flex;gap:6px;padding:10px 20px;border-top:1px solid var(--line);align-items:center}
+.nav .pos{font-size:.74rem;color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums}
+
+/* gráfico de barras construído na frente do usuário */
+.barras{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.barras .t{font-size:.72rem;color:var(--muted);margin-bottom:2px}
+.bar{display:grid;grid-template-columns:120px 1fr 52px;gap:8px;align-items:center;font-size:.76rem}
+.bar .nome{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg-2)}
+.bar .trk{display:block;height:10px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.bar .fill{display:block;height:100%;width:0;background:var(--accent);border-radius:3px;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+.bar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--fg)}
+.bar.ref .fill{background:var(--muted)}
+
+.legenda{position:fixed;left:calc(var(--panel-w) + 14px);bottom:14px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:.74rem;z-index:3;max-width:320px}
+.legenda .t{font-weight:600;margin-bottom:4px}
+.legenda .cls{display:flex;gap:4px;align-items:center;margin:2px 0}
+.legenda .sw{width:18px;height:11px;border-radius:2px;flex:0 0 auto}
+.legenda .fl{display:flex;align-items:center;gap:6px;margin-top:6px;color:var(--fg-2)}
+.legenda .arc{width:26px;height:2px;background:var(--accent);display:inline-block}
+.aviso{position:fixed;right:14px;bottom:14px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:.72rem;color:var(--fg-2);z-index:3;max-width:360px}
+.tip{position:fixed;z-index:9;background:var(--fg);color:var(--bg);font-size:.76rem;padding:6px 9px;border-radius:4px;pointer-events:none;max-width:280px;line-height:1.35}
+.tip b{display:block;font-size:.8rem;margin-bottom:2px}
+.deck-tooltip{font-family:var(--font-body);line-height:1.35;z-index:9}
+.deck-tooltip > b:first-child{display:block;font-size:.8rem;margin-bottom:2px}
+.carregando{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:20;font-size:.95rem;color:var(--fg-2)}
+@media (max-width:900px){
+  :root{--panel-w:0px}
+  .painel{top:auto;bottom:0;width:100%;height:42%;border-right:0;border-top:1px solid var(--line)}
+  #mapa{left:0;bottom:42%}
+  .legenda{left:14px;bottom:calc(42% + 14px)}
+  .aviso{display:none}
+  .topbar .ctl.esc{display:none}
+}
+</style>
+</head>
+<body>
+<div class="carregando" id="carregando">Carregando os dados do warehouse…</div>
+
+<header class="topbar">
+  <div class="brand"><span class="eyebrow">Gestação, parto e nascimento</span><h1 id="titulo-app">Nascer em Minas</h1></div>
+  <button class="btn primary" id="btn-play" aria-label="Pausar">⏸ Pausar</button>
+  <span class="modo" id="modo">modo exposição</span>
+  <span class="spacer"></span>
+  <label class="ctl esc" for="sel-var">Variável <select id="sel-var"></select></label>
+  <label class="ctl esc" for="sel-nivel">Nível <select id="sel-nivel">
+    <option value="municipio">município</option><option value="regiao_saude">região de saúde</option><option value="macrorregiao">macrorregião</option></select></label>
+  <label class="ctl esc" for="sel-ano">Ano <select id="sel-ano"></select></label>
+  <label class="ctl esc" for="chk-fluxos"><input type="checkbox" id="chk-fluxos"> fluxos</label>
+  <label class="ctl esc" for="chk-hosp"><input type="checkbox" id="chk-hosp"> hospitais</label>
+</header>
+
+<aside class="painel">
+  <div class="progresso"><i id="prog"></i></div>
+  <div class="cena" id="cena"></div>
+  <div class="nav">
+    <button class="btn" id="btn-prev" aria-label="Cena anterior">◀</button>
+    <button class="btn" id="btn-next" aria-label="Próxima cena">▶</button>
+    <button class="btn" id="btn-retomar" hidden>Retomar apresentação</button>
+    <span class="pos" id="pos"></span>
+  </div>
+</aside>
+
+<div id="mapa"></div>
+<div class="legenda" id="legenda"></div>
+<div class="aviso" id="aviso" hidden></div>
+<div class="tip" id="tip" hidden></div>
+
+<script src="vendor/deck.gl-9.1.12.min.js"></script>
+<script>
+(async function(){
+'use strict';
+const $ = s => document.querySelector(s);
+const fmt = (n, d=1) => n==null ? '—' : n.toLocaleString('pt-BR', {minimumFractionDigits:d, maximumFractionDigits:d});
+
+// ---------- paletas (rampa sequencial azul e divergente azul/vermelho; valores validados) ----------
+const DARK = matchMedia('(prefers-color-scheme: dark)').matches;
+const SEQ = DARK ? ['#1c3a60','#1c5cab','#3987e5','#6da7ec','#b7d3f6'] : ['#cde2fb','#9ec5f4','#5598e7','#256abf','#104281'];
+const DIV = DARK ? ['#e66767','#8a3b3b','#383835','#1c5cab','#3987e5'] : ['#e34948','#f0a3a3','#e4e7ea','#86b6ef','#2a78d6'];
+const NEUTRO = DARK ? [40,48,58] : [223,228,234];
+const ACCENT = DARK ? [109,167,236] : [28,92,171];
+const HOSP = DARK ? [217,89,38] : [235,104,52];
+const hex = h => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+// tipologia: estrato A (sem serviço de parto) em azul, B (com serviço) em laranja; dentro do estrato, mais escuro = mais longe da UTIN (A) / maior (B)
+const RAMPA_A = DARK ? ['#b7d3f6','#6da7ec','#2a78d6','#184f95'] : ['#86b6ef','#3987e5','#1c5cab','#0d366b'];
+const RAMPA_B = DARK ? ['#ff9769','#ef774a','#d35e2f','#b7440f'] : ['#ff8d5c','#ec6d3b','#c94d15','#a32700'];
+const SLOTS = DARK ? ['#3987e5','#d95926','#199e70','#c98500','#d55181','#9085e9'] : ['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#6250d6'];
+function coresCategorias(cats){
+  const cores = {}; const porEstrato = {};
+  cats.forEach(c => (porEstrato[c.estrato || 'T'] = porEstrato[c.estrato || 'T'] || []).push(c));
+  Object.entries(porEstrato).forEach(([e, lista]) => {
+    lista.sort((a,b) => a.id - b.id);
+    const rampa = e === 'A' ? RAMPA_A : e === 'B' ? RAMPA_B : null;
+    lista.forEach((c, i) => {
+      if(c.cor){ cores[c.id] = DARK && c.cor_escura ? c.cor_escura : c.cor; }
+      else if(rampa){ const n = lista.length; const idx = n === 1 ? 2 : Math.round(i * (rampa.length - 1) / (n - 1)); cores[c.id] = rampa[idx]; }
+      else cores[c.id] = SLOTS[i % SLOTS.length];
+    });
+  });
+  return cores;
+}
+
+// ---------- dados ----------
+async function j(u){ const r = await fetch(u, {cache:'no-cache'}); if(!r.ok) throw new Error(u+': '+r.status); return r.json(); }
+let META, CENAS, TERR, FLUXOS, HOSPS, MALHA = null, MALHA_REG = null, MALHA_MAC = null, CLUSTERS = null, SIFILIS = null, ESPACIAL = null, ESP_META = {};
+try {
+  [META, CENAS, TERR, FLUXOS, HOSPS] = await Promise.all([j('data/meta.json'), j('data/cenas.json'), j('data/territorios.json'), j('data/fluxos.json'), j('data/hospitais.json')]);
+  try { MALHA = await j('data/malha_' + META.uf.toLowerCase() + '.geojson'); } catch(e){ MALHA = null; }
+  try { MALHA_REG = await j('data/malha_regsaud_' + META.uf.toLowerCase() + '.geojson'); } catch(e){ MALHA_REG = null; }
+  try { MALHA_MAC = await j('data/malha_macsaud_' + META.uf.toLowerCase() + '.geojson'); } catch(e){ MALHA_MAC = null; }
+  try { CLUSTERS = await j('data/clusters.json'); } catch(e){ CLUSTERS = null; }
+  try { SIFILIS = await j('data/sifilis.json'); } catch(e){ SIFILIS = null; }
+  try { ESPACIAL = await j('data/espacial.json'); } catch(e){ ESPACIAL = null; }
+  ESP_META = (ESPACIAL && ESPACIAL.meta) || {};
+} catch(e) {
+  $('#carregando').textContent = 'Não encontrei os dados em data/. Rode: .\\scripts\\run.ps1 exportar  (' + e.message + ')';
+  return;
+}
+$('#carregando').remove();
+$('#titulo-app').textContent = 'Nascer em ' + ({MG:'Minas', SP:'São Paulo', BA:'Bahia', RJ:'Rio de Janeiro'}[META.uf] || META.uf);
+const MUN = TERR.filter(t => t.nivel==='municipio');
+const BYKEY = Object.fromEntries(TERR.map(t => [t.nivel+':'+t.cod, t]));
+const VARS = META.variaveis;
+
+// ---------- estado ----------
+const S = { ano: String(META.ano_ref), variavel: 'pct_parto_fora_municipio', nivel: 'municipio', fluxos: true, hospitais: false,
+            cena: 0, autoplay: true, inicioCena: 0, fluxosVisiveis: 0, timer: null, lastViewState: null };
+
+// ---------- controles ----------
+const selVar = $('#sel-var'), selNivel = $('#sel-nivel'), selAno = $('#sel-ano');
+Object.entries(VARS).forEach(([k,v]) => { const o = document.createElement('option'); o.value = k; o.textContent = v.nome; selVar.appendChild(o); });
+META.anos.forEach(a => { const o = document.createElement('option'); o.value = String(a); o.textContent = a; selAno.appendChild(o); });
+function assumirControle(){ if(S.autoplay){ S.autoplay = false; $('#btn-play').textContent = '▶ Apresentar'; $('#modo').textContent = 'modo análise'; $('#btn-retomar').hidden = false; } }
+selVar.addEventListener('change', e => { assumirControle(); S.variavel = e.target.value; render(); });
+selNivel.addEventListener('change', e => { assumirControle(); S.nivel = e.target.value; render(); });
+selAno.addEventListener('change', e => { assumirControle(); S.ano = e.target.value; S.fluxosVisiveis = 1e9; render(); });
+$('#chk-fluxos').addEventListener('change', e => { assumirControle(); S.fluxos = e.target.checked; S.fluxosVisiveis = 1e9; render(); });
+$('#chk-hosp').addEventListener('change', e => { assumirControle(); S.hospitais = e.target.checked; render(); });
+$('#btn-play').addEventListener('click', () => { if(S.autoplay){ assumirControle(); } else { retomar(); } });
+$('#btn-retomar').addEventListener('click', retomar);
+$('#btn-prev').addEventListener('click', () => irCena(S.cena - 1, true));
+$('#btn-next').addEventListener('click', () => irCena(S.cena + 1, true));
+document.addEventListener('keydown', e => { if(e.target.tagName === 'SELECT') return; if(e.key === ' '){ e.preventDefault(); $('#btn-play').click(); } if(e.key === 'ArrowRight') irCena(S.cena+1, true); if(e.key === 'ArrowLeft') irCena(S.cena-1, true); });
+function retomar(){ S.autoplay = true; $('#btn-play').textContent = '⏸ Pausar'; $('#modo').textContent = 'modo exposição'; $('#btn-retomar').hidden = true; irCena(S.cena, false); }
+
+// ---------- valores por município (conforme nível) ----------
+function valorEsp(t, vdef){ const e = t.esp && t.esp[vdef.esp]; return e ? e[vdef.campo] : null; }
+function valorMun(m){
+  const vdef = VARS[S.variavel] || {};
+  if(vdef.esp){ const t = S.nivel === 'municipio' ? m : BYKEY[S.nivel + ':' + (S.nivel === 'macrorregiao' ? m.macro : m.reg)]; return t ? valorEsp(t, vdef) : null; }
+  if(vdef.paleta === 'cat') return m.cluster == null ? null : m.cluster;
+  if(vdef.tipologia) return m.tipologia ? m.tipologia[vdef.tipologia] : null;
+  const t = S.nivel === 'municipio' ? m : BYKEY[S.nivel + ':' + (S.nivel === 'macrorregiao' ? m.macro : m.reg)];
+  const a = t && t.anos[S.ano];
+  return a ? a[S.variavel] : null;
+}
+function valorTerr(t){   // valor de um território (qualquer nível) para a variável atual
+  const vdef = VARS[S.variavel] || {};
+  if(vdef.esp) return valorEsp(t, vdef);
+  if(vdef.paleta === 'cat') return t.cluster == null ? null : t.cluster;
+  if(vdef.tipologia) return t.tipologia ? t.tipologia[vdef.tipologia] : null;
+  const a = t.anos[S.ano]; return a ? a[S.variavel] : null;
+}
+function territorioDe(m){ return S.nivel === 'municipio' ? m : BYKEY[S.nivel + ':' + (S.nivel === 'macrorregiao' ? m.macro : m.reg)]; }
+// Quebras de classe: quintis quando os valores permitem; se a distribuição for concentrada
+// (muitos empates, p.ex. 100% dos partos fora do município), intervalos iguais entre mínimo e máximo.
+// Quebras naturais de Jenks (minimiza a variância dentro das classes). Usada quando os quintis
+// colapsam: muitos municípios pequenos com taxa zero, ou muitos com 100% dos partos fora.
+function jenks(v, k){
+  const n = v.length; if(n <= k) return v.slice(1);
+  const LC = Array.from({length:n+1}, () => new Array(k+1).fill(0));
+  const VA = Array.from({length:n+1}, () => new Array(k+1).fill(Infinity));
+  for(let j=1;j<=k;j++){ LC[1][j] = 1; VA[1][j] = 0; }
+  for(let l=2;l<=n;l++){
+    let s1=0, s2=0, w=0;
+    for(let m=1;m<=l;m++){
+      const i3 = l-m+1, val = v[i3-1];
+      s2 += val*val; s1 += val; w++;
+      const var_ = s2 - (s1*s1)/w;
+      if(i3 !== 1) for(let j=2;j<=k;j++) if(VA[l][j] >= var_ + VA[i3-1][j-1]){ LC[l][j] = i3; VA[l][j] = var_ + VA[i3-1][j-1]; }
+    }
+    LC[l][1] = 1; VA[l][1] = s2 - (s1*s1)/w;
+  }
+  const br = []; let kk = n;
+  for(let j=k;j>=2;j--){ const id = LC[kk][j]-2; br.unshift(v[id]); kk = LC[kk][j]-1; }
+  return br;
+}
+function quebras(valores, k, dec){
+  const v = valores.filter(x => x != null && isFinite(x)).sort((a,b) => a-b);
+  if(v.length < 2) return [];
+  const r = x => Number(x.toFixed(dec));
+  const mn = v[0], mx = v[v.length-1];
+  const limpa = q => [...new Set(q.map(r))].filter(x => x > mn && x < mx);
+  let q = []; for(let i=1;i<k;i++) q.push(v[Math.floor(i*v.length/k)]);
+  q = limpa(q);
+  if(q.length < k-1) q = limpa(jenks(v, k));
+  return q;
+}
+let CLASSES = {q:[], pal:SEQ, div:false, cat:null};
+function corDe(v){
+  if(v == null || !isFinite(v)) return NEUTRO;
+  if(CLASSES.cat) return CLASSES.cat[v] ? hex(CLASSES.cat[v]) : NEUTRO;
+  const pal = CLASSES.pal; let i = 0; while(i < CLASSES.q.length && v > CLASSES.q[i]) i++;
+  return hex(pal[Math.min(i, pal.length-1)]);
+}
+function prepararClasses(){
+  const vdef = VARS[S.variavel] || {}; const dec = vdef.dec ?? 1;
+  if(vdef.paleta === 'cat'){ CLASSES = {q:[], pal:[], div:false, cat: coresCategorias(vdef.categorias || [])}; return; }
+  if(vdef.quebras){ CLASSES = {q: vdef.quebras, pal: vdef.paleta === 'div' ? DIV : vdef.paleta === 'div_inv' ? [...DIV].reverse() : (vdef.paleta === 'seq_inv' ? [...SEQ].reverse() : SEQ), div: vdef.paleta.startsWith('div'), cat:null}; return; }
+  // classes calculadas sobre os territórios do nível escolhido (não sobre os municípios repetidos)
+  const vals = TERR.filter(t => t.nivel === S.nivel).map(valorTerr);
+  if(vdef.paleta === 'div'){
+    const mx = Math.max(...vals.filter(x => x!=null).map(Math.abs), 1);
+    CLASSES = {q:[-mx*0.4, -mx*0.1, mx*0.1, mx*0.4], pal:DIV, div:true, cat:null};
+  } else {
+    const base = vdef.paleta === 'seq_inv' ? [...SEQ].reverse() : SEQ;
+    const q = quebras(vals, 5, dec);
+    // com menos classes que cores, usa as cores das pontas e do meio da rampa
+    const n = q.length + 1; const pal = n >= base.length ? base : Array.from({length:n}, (_, i) => base[Math.round(i*(base.length-1)/Math.max(n-1,1))]);
+    CLASSES = {q, pal, div:false, cat:null};
+  }
+}
+
+// ---------- camadas ----------
+const deckgl = new deck.DeckGL({
+  container: 'mapa',
+  initialViewState: { longitude: -44.6, latitude: -18.6, zoom: 5.4, minZoom: 4, maxZoom: 11, pitch: 0 },
+  controller: true,
+  layers: [],
+  getTooltip: info => info.object ? tooltip(info) : null,
+  onViewStateChange: ({viewState}) => { S.lastViewState = viewState; },
+  parameters: { clearColor: DARK ? [0.10,0.125,0.16,1] : [0.89,0.91,0.93,1] }
+});
+function tooltip(info){
+  const o = info.object;
+  if(info.layer.id === 'fluxos') return {html:`<b>${o.on} → ${o.dn}</b>${fmt(o.n,0)} nascimentos em ${o.ano}<br>${fmt(100*o.ces/o.n,0)}% cesáreas · destino ${o.utin?'com':'sem'} UTI neonatal`, style:tipStyle()};
+  if(info.layer.id === 'hospitais') return {html:`<b>CNES ${o.cnes} · ${o.municipio}</b>leitos obstétricos ${o.leitos_obstetricos} (SUS ${o.leitos_obstetricos_sus})<br>UTI neonatal ${o.leitos_uti_neonatal} · UCIN ${o.leitos_uci_neonatal} · UTI adulto ${o.leitos_uti_adulto}<br>${fmt(o.nascimentos,0)} nascimentos em ${o.ano}, ${fmt(100*o.de_fora/Math.max(o.nascimentos,1),0)}% de outros municípios`, style:tipStyle()};
+  if(info.layer.id === 'malha-nivel'){ const t = BYKEY[S.nivel + ':' + o.properties.cod]; if(!t) return null; const vdef = VARS[S.variavel]; const v = valorTerr(t); const a = t.anos[S.ano] || {};
+    if(vdef.esp){ const e = t.esp && t.esp[vdef.esp]; if(!e) return null; const cl = ['', 'risco abaixo do estadual', 'indefinida', 'área quente', 'quente, alta confiança'][e.classe] || '';
+      return {html:`<b>${t.nome}</b>${vdef.nome.split(':')[1] || ''}<br>RR suavizado <b>${fmt(e.rr,2)}</b>${e.inf != null ? ' ['+fmt(e.inf,2)+'–'+fmt(e.sup,2)+']' : ''} · P(RR&gt;1) = ${fmt(e.prob,2)} → ${cl}<br>observados ${fmt(e.obs,0)} · esperados ${fmt(e.esp,1)}`, style:tipStyle()}; }
+    return {html:`<b>${t.nome}</b>${vdef.nome}: <b>${fmt(v, vdef.dec ?? 1)}</b> ${vdef.unid || ''}<br>nascidos vivos ${fmt(a.nascidos_vivos,0)} · cesárea ${fmt(a.pct_cesarea)}% · fora do município ${fmt(a.pct_parto_fora_municipio)}%`, style:tipStyle()}; }
+  const m = o.properties ? MUNBY[o.properties.cod7] : o; if(!m) return null;
+  const t = territorioDe(m); const a = m.anos[S.ano] || {}; const ta = t ? (t.anos[S.ano]||{}) : {};
+  const vdef = VARS[S.variavel]; const v = valorMun(m);
+  if(vdef.esp){ const e = t && t.esp && t.esp[vdef.esp]; if(!e) return {html:`<b>${m.nome}</b>sem estimativa`, style:tipStyle()};
+    const cl = ['', 'risco abaixo do estadual', 'indefinida', 'área quente', 'quente, alta confiança'][e.classe] || '';
+    return {html:`<b>${S.nivel === 'municipio' ? m.nome : t.nome}${S.nivel !== 'municipio' ? ' ('+m.nome+')' : ''}</b>${VARS[S.variavel].nome.split(':')[1] || ''}<br>RR suavizado <b>${fmt(e.rr,2)}</b>${e.inf != null ? ' ['+fmt(e.inf,2)+'–'+fmt(e.sup,2)+']' : ''} · P(RR&gt;1) = ${fmt(e.prob,2)} → ${cl}<br>observados ${fmt(e.obs,0)} · esperados ${fmt(e.esp,1)} · SMR bruta ${fmt(e.smr,2)}${e.lisa && e.lisa !== 'ns' ? '<br>LISA: '+e.lisa : ''}`, style:tipStyle()}; }
+  if(vdef.paleta === 'cat'){ const c = (vdef.categorias || []).find(x => x.id === v); const tp = m.tipologia || {};
+    return {html:`<b>${m.nome}${c ? ' · tipo '+c.tipo : ''}</b>${c ? c.rotulo : 'sem tipo'}<br>UTIN a ${fmt(tp.dist_utin_km,0)} km · cesárea a ${fmt(tp.dist_cesarea_km,0)} km · percorre ${fmt(tp.dist_media_km,0)} km<br>partos fora do município ${fmt(tp.pct_evasao_partos,0)}% · fora da região ${fmt(tp.pct_evasao_regiao,0)}%<br>nascidos vivos ${fmt(a.nascidos_vivos,0)} (${S.ano})`, style:tipStyle()}; }
+  return {html:`<b>${m.nome}</b>${m.reg_nome ? 'região '+m.reg_nome+' · ' : ''}${m.macro_nome ? 'macro '+m.macro_nome : ''}<br>${vdef.nome}: <b>${fmt(v, vdef.dec ?? 1)}</b> ${vdef.unid}${S.nivel!=='municipio' ? ' ('+t.nome+')' : ''}<br>nascidos vivos ${fmt(a.nascidos_vivos,0)} · cesárea ${fmt(a.pct_cesarea)}% · fora do município ${fmt(a.pct_parto_fora_municipio)}%${a.area_pequena ? '<br><i>área pequena: taxas instáveis</i>' : ''}`, style:tipStyle()};
+}
+function tipStyle(){ return {background: DARK ? '#e8ecf0' : '#16212c', color: DARK ? '#10151b' : '#f3f5f7', fontSize:'12px', padding:'6px 9px', borderRadius:'4px', maxWidth:'300px'}; }
+const MUNBY = Object.fromEntries(MUN.map(m => [m.cod, m]));
+
+function camadas(){
+  const L = [];
+  prepararClasses();
+  const trig = S.variavel + '|' + S.nivel + '|' + S.ano;
+  const malhaNivel = S.nivel === 'regiao_saude' ? MALHA_REG : S.nivel === 'macrorregiao' ? MALHA_MAC : null;
+  if(malhaNivel && !(VARS[S.variavel] || {}).so_municipio){
+    // polígonos do próprio nível (regiões de saúde ou macrorregiões), coloridos pelo valor do território
+    L.push(new deck.GeoJsonLayer({ id:'malha-nivel', data: malhaNivel, filled:true, stroked:true, getFillColor: f => { const t = BYKEY[S.nivel + ':' + f.properties.cod]; return t ? corDe(valorTerr(t)) : NEUTRO; }, getLineColor: DARK ? [16,21,27] : [255,255,255], getLineWidth: 1, lineWidthMinPixels: 1, pickable:true, updateTriggers:{getFillColor:[trig]}, transitions:{getFillColor:500} }));
+    if(MALHA) L.push(new deck.GeoJsonLayer({ id:'malha-mun-contorno', data: MALHA, filled:false, stroked:true, getLineColor: DARK ? [16,21,27,120] : [255,255,255,140], lineWidthMinPixels: 0.3, pickable:false }));
+  } else if(MALHA){
+    L.push(new deck.GeoJsonLayer({ id:'malha', data: MALHA, filled:true, stroked:true, getFillColor: f => corDe(valorMun(MUNBY[f.properties.cod7] || {anos:{}})), getLineColor: DARK ? [16,21,27] : [255,255,255], getLineWidth: 1, lineWidthMinPixels: 0.5, pickable:true, updateTriggers:{getFillColor:[trig]}, transitions:{getFillColor:500} }));
+    if(MALHA_REG) L.push(new deck.GeoJsonLayer({ id:'reg-contorno', data: MALHA_REG, filled:false, stroked:true, getLineColor: DARK ? [232,236,240,110] : [22,33,44,90], lineWidthMinPixels: 1, pickable:false }));
+  } else {
+    L.push(new deck.ScatterplotLayer({ id:'sedes', data: MUN.filter(m => m.lat != null), getPosition: m => [m.lon, m.lat], getRadius: m => 1500 + 60*Math.sqrt((m.anos[S.ano]||{}).nascidos_vivos || 0), radiusMinPixels: 2.5, radiusMaxPixels: 40, getFillColor: m => corDe(valorMun(m)), getLineColor: DARK ? [16,21,27] : [255,255,255], stroked:true, lineWidthMinPixels:0.5, pickable:true, updateTriggers:{getFillColor:[trig], getRadius:[S.ano]}, transitions:{getFillColor:500} }));
+  }
+  if(S.fluxos){
+    const fl = FLUXOS.filter(f => String(f.ano) === S.ano).slice(0, Math.min(S.fluxosVisiveis, 1200));
+    L.push(new deck.ArcLayer({ id:'fluxos', data: fl, getSourcePosition: f => [f.olon, f.olat], getTargetPosition: f => [f.dlon, f.dlat], getSourceColor: [...ACCENT, 60], getTargetColor: [...ACCENT, 230], getWidth: f => Math.max(1, Math.sqrt(f.n)/4), widthMinPixels: 0.6, widthMaxPixels: 12, greatCircle:false, getHeight: 0.35, pickable:true, updateTriggers:{getWidth:[S.ano]} }));
+  }
+  if(S.hospitais){
+    const hs = HOSPS.filter(h => String(h.ano) === S.ano && h.leitos_uti_neonatal > 0);
+    // pequeno deslocamento determinístico (pelo CNES) para hospitais do mesmo município não se sobreporem
+    const jit = (s, k) => (((parseInt(s, 10) || 0) * (k ? 7919 : 104729)) % 1000) / 1000 - 0.5;
+    L.push(new deck.ScatterplotLayer({ id:'hospitais', data: hs, getPosition: h => [h.lon + jit(h.cnes, 0)*0.03, h.lat + jit(h.cnes, 1)*0.03], getRadius: h => 2500 + 900*Math.sqrt(h.leitos_uti_neonatal), radiusMinPixels: 4, radiusMaxPixels: 28, getFillColor: [...HOSP, 170], getLineColor: DARK ? [16,21,27] : [255,255,255], stroked:true, lineWidthMinPixels:1, pickable:true }));
+  }
+  if(S.nivel !== 'municipio'){
+    const grupos = {}; MUN.forEach(m => { const t = territorioDe(m); if(!t || m.lat == null) return; (grupos[t.cod] = grupos[t.cod] || {t, la:0, lo:0, n:0}); grupos[t.cod].la += m.lat; grupos[t.cod].lo += m.lon; grupos[t.cod].n++; });
+    const rot = Object.values(grupos).filter(g => S.nivel === 'macrorregiao' || g.n >= 6).map(g => ({nome: g.t.nome.length > 28 ? g.t.nome.split('/')[0] : g.t.nome, n: g.n, pos:[g.lo/g.n, g.la/g.n]}));
+    const colisao = deck.CollisionFilterExtension ? {extensions: [new deck.CollisionFilterExtension()], collisionEnabled: true, getCollisionPriority: d => d.n, collisionTestProps: {sizeScale: 1.6}} : {};
+    L.push(new deck.TextLayer({ id:'rotulos', data: rot, ...colisao, getPosition: d => d.pos, getText: d => d.nome, getSize: S.nivel === 'macrorregiao' ? 13 : 10, getColor: DARK ? [232,236,240,220] : [22,33,44,220], fontFamily: 'IBM Plex Sans, system-ui, sans-serif', fontWeight: 600, characterSet: 'auto', outlineWidth: 2, outlineColor: DARK ? [16,21,27,200] : [255,255,255,220], fontSettings:{sdf:true}, getTextAnchor:'middle', getAlignmentBaseline:'center' }));
+  }
+  return L;
+}
+
+// ---------- legenda e painel ----------
+function legenda(){
+  const vdef = VARS[S.variavel] || {nome:S.variavel, unid:''}; const d = vdef.dec ?? 1; const q = CLASSES.q, pal = CLASSES.pal;
+  let h = `<div class="t">${vdef.nome}</div><div class="eyebrow">${{municipio:'por município',regiao_saude:'por região de saúde',macrorregiao:'por macrorregião'}[S.nivel]} · ${vdef.paleta === 'cat' || vdef.tipologia || vdef.esp ? (vdef.anos || (CLUSTERS && CLUSTERS.meta.anos) || [S.ano]).join('-') : S.ano}${vdef.unid ? ' · ' + vdef.unid : ''}</div>`;
+  if(CLASSES.cat){
+    const cont = {}; if(vdef.esp) TERR.filter(t => t.nivel === S.nivel).forEach(t => { const v = valorEsp(t, vdef); if(v != null) cont[v] = (cont[v] || 0) + 1; });
+    (vdef.categorias || []).forEach(c => { h += `<div class="cls"><span class="sw" style="background:${CLASSES.cat[c.id]}"></span><span><b>${c.tipo}</b> ${c.rotulo} (${vdef.esp ? (cont[c.id] || 0) : c.n})</span></div>`; });
+    h += `<div class="cls"><span class="sw" style="background:rgb(${NEUTRO})"></span><span>sem dado</span></div>`;
+    $('#legenda').innerHTML = h; $('#aviso').hidden = !!MALHA; return;
+  }
+  for(let i=0;i<pal.length;i++){
+    const lo = i===0 ? null : q[i-1], hi = i===pal.length-1 ? null : q[i];
+    h += `<div class="cls"><span class="sw" style="background:${pal[i]}"></span><span>${lo==null ? '≤ '+fmt(hi,d) : hi==null ? '> '+fmt(lo,d) : fmt(lo,d)+' – '+fmt(hi,d)}</span></div>`;
+  }
+  h += `<div class="cls"><span class="sw" style="background:rgb(${NEUTRO})"></span><span>sem dado</span></div>`;
+  if(S.nivel === 'municipio' && /por mil/.test(vdef.unid || '')) h += `<div class="fl" style="color:var(--muted)">taxas de municípios pequenos oscilam muito; compare por região</div>`;
+  if(S.fluxos) h += `<div class="fl"><span class="arc"></span>fluxo residência → parto (largura ∝ nascimentos)</div>`;
+  if(S.hospitais) h += `<div class="fl"><span class="sw" style="background:rgb(${HOSP});border-radius:50%;width:11px"></span>hospital com UTI neonatal (área ∝ leitos)</div>`;
+  $('#legenda').innerHTML = h;
+  const av = $('#aviso'); if(!MALHA){ av.hidden = false; av.textContent = 'Malha municipal do IBGE não disponível: cada município é um ponto na sede, com área proporcional aos nascidos vivos. Rode "exportar" com acesso à internet para baixar os polígonos.'; } else av.hidden = true;
+}
+// ---------- gráfico de dispersão (SVG inline): taxa de sífilis congênita × outra taxa municipal ----------
+function dispersao(pontos, xk, xrot, yk, yrot, corr){
+  const W = 360, H = 250, ml = 44, mr = 10, mt = 12, mb = 38;
+  const xs = pontos.map(p => p[xk]).filter(v => v != null && isFinite(v)), ys = pontos.map(p => p[yk]).filter(v => v != null && isFinite(v));
+  if(xs.length < 5) return '';
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = 0, y1 = Math.max(...ys) * 1.05 || 1;
+  const sx = v => ml + (v - x0) / ((x1 - x0) || 1) * (W - ml - mr), sy = v => H - mb - (v - y0) / ((y1 - y0) || 1) * (H - mt - mb);
+  const ticks = (a, b, n) => { const st = (b - a) / n; return Array.from({length:n+1}, (_, i) => a + i*st); };
+  const ink = DARK ? '#b7c0ca' : '#46525f', grid = DARK ? '#2b343e' : '#e9edf1', ring = DARK ? '#161b21' : '#ffffff';
+  const cor = e => e === 'B' ? (DARK ? '#d95926' : '#eb6834') : (DARK ? '#3987e5' : '#2a78d6');
+  const nvmax = Math.max(...pontos.map(p => p.nv || 1));
+  let g = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${yrot} por ${xrot}, um ponto por município" style="font-family:inherit;font-size:9.5px">`;
+  ticks(y0, y1, 4).forEach(v => { g += `<line x1="${ml}" x2="${W-mr}" y1="${sy(v)}" y2="${sy(v)}" stroke="${grid}"/><text x="${ml-4}" y="${sy(v)+3}" text-anchor="end" fill="${ink}">${fmt(v,0)}</text>`; });
+  ticks(x0, x1, 4).forEach(v => { g += `<text x="${sx(v)}" y="${H-mb+13}" text-anchor="middle" fill="${ink}">${fmt(v, x1 - x0 > 20 ? 0 : 1)}</text>`; });
+  g += `<line x1="${ml}" x2="${W-mr}" y1="${H-mb}" y2="${H-mb}" stroke="${grid}"/>`;
+  g += `<text x="${(ml+W-mr)/2}" y="${H-4}" text-anchor="middle" fill="${ink}">${xrot}</text>`;
+  g += `<text transform="translate(10,${(mt+H-mb)/2}) rotate(-90)" text-anchor="middle" fill="${ink}">${yrot}</text>`;
+  pontos.filter(p => p[xk] != null && p[yk] != null).sort((a,b) => (b.nv||0) - (a.nv||0)).forEach(p => {
+    const r = 2.5 + 7 * Math.sqrt((p.nv || 1) / nvmax);
+    g += `<circle cx="${sx(p[xk]).toFixed(1)}" cy="${sy(p[yk]).toFixed(1)}" r="${r.toFixed(1)}" fill="${cor(p.estrato)}" fill-opacity="0.75" stroke="${ring}" stroke-width="1"><title>${p.nome}${p.tipo ? ' ('+p.tipo+')' : ''}: ${yrot} ${fmt(p[yk],1)}; ${xrot} ${fmt(p[xk],1)}; ${fmt(p.nv,0)} NV</title></circle>`;
+  });
+  g += `</svg>`;
+  const leg = `<div class="fl"><span class="sw" style="background:${cor('A')};border-radius:50%;width:11px"></span>sem serviço de parto (A)<span class="sw" style="background:${cor('B')};border-radius:50%;width:11px;margin-left:8px"></span>com serviço (B) · área ∝ nascidos vivos</div>`;
+  const rho = corr ? `<div class="t">Spearman ρ = <b>${fmt(corr.rho,2)}</b> [${fmt(corr.ic_inf,2)}; ${fmt(corr.ic_sup,2)}], n = ${corr.n}${corr.p != null ? ', p ' + (corr.p < 0.001 ? '< 0,001' : '= ' + fmt(corr.p,3)) : ''}</div>` : '';
+  return g + leg + rho;
+}
+function blocoSifilis(){
+  if(!SIFILIS || !SIFILIS.pontos || !SIFILIS.pontos.length) return '';
+  const cm = SIFILIS.correlacoes.filter(c => c.nivel === 'municipio' && c.rho != null).sort((a,b) => Math.abs(b.rho) - Math.abs(a.rho));
+  if(!S.xSifilis || !cm.find(c => c.variavel === S.xSifilis)) S.xSifilis = (cm.find(c => c.variavel === 'pct_prenatal_adequado') || cm[0]).variavel;
+  const corr = cm.find(c => c.variavel === S.xSifilis);
+  const opts = cm.map(c => `<option value="${c.variavel}" ${c.variavel === S.xSifilis ? 'selected' : ''}>${c.rotulo} (ρ ${fmt(c.rho,2)})</option>`).join('');
+  let h = `<div class="t" style="margin-top:8px">Correlacionar com <select id="sel-x" class="ctl" style="font-size:.74rem;max-width:230px">${opts}</select></div>`;
+  h += dispersao(SIFILIS.pontos, S.xSifilis, corr.rotulo.split(',')[0], 'tx_sifc', 'sífilis congênita por mil NV', corr);
+  if(SIFILIS.regressao && SIFILIS.regressao.length){
+    h += `<div class="t" style="margin-top:8px">Ajustadas entre si (quase-Poisson; IRR por 1 desvio-padrão)</div>`;
+    SIFILIS.regressao.forEach(r => { const sig = r.irr_ic_inf > 1 || r.irr_ic_sup < 1; h += `<div class="bar"><span class="nome" title="${r.rotulo}">${r.rotulo.split(',')[0]}</span><span class="v" style="text-align:left;grid-column:span 2">${sig ? '<b>' : ''}${fmt(r.irr_por_dp,2)}${sig ? '</b>' : ''} [${fmt(r.irr_ic_inf,2)}–${fmt(r.irr_ic_sup,2)}]</span></div>`; });
+  }
+  if(SIFILIS.por_tipo && SIFILIS.por_tipo.length){
+    const mx = Math.max(...SIFILIS.por_tipo.map(p => p.ic_sup || p.tx_sifc));
+    h += `<div class="t" style="margin-top:8px">Por tipo de município (casos por mil NV, IC 95%)</div>`;
+    SIFILIS.por_tipo.forEach(p => { h += `<div class="bar"><span class="nome" title="${p.rotulo}">${p.tipo} · ${p.n_municipios} mun.</span><span class="trk"><span class="fill" data-w="${Math.max(2, 100*p.tx_sifc/mx)}" style="background:${CLUSTERS ? coresCategorias(VARS.cluster ? VARS.cluster.categorias : [])[p.cluster] || 'var(--accent)' : 'var(--accent)'}"></span></span><span class="v">${fmt(p.tx_sifc,1)}</span></div>`; });
+  }
+  return h;
+}
+function blocoTipologia(vdef){
+  const cats = (vdef.categorias || []).slice().sort((a,b) => a.id - b.id); if(!cats.length) return '';
+  const cores = CLASSES.cat || coresCategorias(cats);
+  const mx = Math.max(...cats.map(c => c.tmnp_ic ? c.tmnp_ic[1] : c.tmnp), 1e-9);
+  let h = `<div class="t">Mortalidade neonatal precoce por tipo (por mil NV, ${(vdef.anos||[]).join('-')}; IC 95% entre colchetes)</div>`;
+  cats.forEach(c => { h += `<div class="bar"><span class="nome" title="${c.rotulo}">${c.tipo} · ${c.n} mun.</span><span class="trk"><span class="fill" data-w="${Math.max(2, 100*c.tmnp/mx)}" style="background:${cores[c.id]}"></span></span><span class="v">${fmt(c.tmnp,2)}</span></div>`; });
+  if(vdef.tmnp_uf != null) h += `<div class="bar ref"><span class="nome">média ${META.uf}</span><span class="trk"><span class="fill" data-w="${Math.max(2, 100*vdef.tmnp_uf/mx)}"></span></span><span class="v">${fmt(vdef.tmnp_uf,2)}</span></div>`;
+  h += `<div class="t" style="margin-top:8px">O que distingue cada tipo</div>`;
+  cats.forEach(c => { h += `<div class="bar" style="grid-template-columns:34px 1fr"><span class="nome"><b>${c.tipo}</b></span><span style="font-size:.72rem;color:var(--fg-2)">${c.rotulo} — NV/ano ${fmt(c.nv_ano,0)}; UTIN a ${fmt(c.dist_utin_km,0)} km; fora do município ${fmt(c.pct_evasao_partos,0)}%; pré-natal adequado ${fmt(c.pct_prenatal_adequado,0)}%</span></div>`; });
+  return h;
+}
+function blocoEspacial(vdef){
+  const k = vdef.esp; const lista = TERR.filter(t => t.nivel === S.nivel && t.esp && t.esp[k]).map(t => ({nome: t.nome, e: t.esp[k]}));
+  if(!lista.length) return '<div class="t">Sem estimativa neste nível.</div>';
+  lista.sort((a,b) => (b.e.prob - a.e.prob) || (b.e.rr - a.e.rr));
+  const quentes = lista.filter(x => x.e.classe >= 3), frias = lista.filter(x => x.e.classe === 1);
+  const mx = Math.max(...lista.map(x => x.e.sup || x.e.rr), 1);
+  const linha = x => `<div class="bar"><span class="nome" title="${x.nome}">${x.nome}</span><span class="trk"><span class="fill" data-w="${Math.max(2, 100*x.e.rr/mx)}" style="background:${x.e.classe >= 4 ? (DARK?'#e66767':'#e34948') : x.e.classe === 3 ? (DARK?'#8a3b3b':'#f0a3a3') : x.e.classe === 1 ? (DARK?'#3987e5':'#86b6ef') : 'var(--muted)'}"></span></span><span class="v" title="P(RR>1) = ${fmt(x.e.prob,2)}">${fmt(x.e.rr,2)}</span></div>`;
+  const nomeNivel = {municipio:'municípios', regiao_saude:'regiões de saúde', macrorregiao:'macrorregiões'}[S.nivel];
+  let h = `<div class="t">${quentes.length} ${nomeNivel} com P(RR &gt; 1) ≥ ${fmt(100*(ESP_META.limiares||{}).quente,0)}% · barras = RR suavizado (1 = média estadual)</div>`;
+  h += quentes.slice(0, 10).map(linha).join('');
+  if(quentes.length > 10) h += `<div class="t">… e mais ${quentes.length - 10}</div>`;
+  if(frias.length) h += `<div class="t" style="margin-top:6px">Risco abaixo do estadual (P ≤ ${fmt(100*(ESP_META.limiares||{}).fria,0)}%): ${frias.length}</div>` + frias.slice(0,3).map(linha).join('');
+  const info = ((ESP_META.niveis||{})[S.nivel]||{})[k];
+  if(info){ const mo = info.moran || {}; h += `<div class="t" style="margin-top:6px">${info.modelo === 'bym2' ? 'BYM2' : 'Bayes empírico'}: ${fmt(info.obs,0)} casos, taxa ${fmt(info.taxa_por_1000,2)}/mil${mo.I != null ? ' · Moran I '+fmt(mo.I,2)+' (p '+fmt(mo.p,3)+')' : ''}${info.diagnostico && info.diagnostico.rhat_max ? ' · R̂ máx '+fmt(info.diagnostico.rhat_max,2) : ''}</div>`; }
+  return h;
+}
+function painel(){
+  const c = CENAS[S.cena]; const vdef = VARS[S.variavel] || {}; const d = vdef.dec ?? 1;
+  const cat = vdef.paleta === 'cat';
+  if(vdef.esp){ painelEsp(c, vdef); return; }
+  // ranking para o gráfico de barras (no nível da cena)
+  const lista = cat ? [] : TERR.filter(t => t.nivel === S.nivel && valorTerr(t) != null && (S.nivel !== 'municipio' || ((t.anos[S.ano]||{}).nascidos_vivos || 0) >= 500))
+                    .map(t => ({nome: t.nome, v: valorTerr(t)})).sort((a,b) => b.v - a.v);
+  const top = lista.slice(0,5), bottom = lista.slice(-5).reverse();
+  const tot = META.totais[S.ano] || {};
+  const refKey = {pct_cesarea:'pct_ces', pct_parto_fora_municipio:'pct_fora', pct_parto_fora_regiao:'pct_fora_reg', tx_mort_neonatal_precoce:'tmnp', tx_mort_neonatal:'tmn', pct_prenatal_adequado:'pct_pn', pct_partos_sus:'pct_sus', rmm_declarada:'rmm', pct_cesarea_sem_tp:'pct_ces_sem_tp'}[S.variavel];
+  let ref = refKey ? tot[refKey] : null;
+  if(S.variavel === 'tx_sifc_por_1000nv' && SIFILIS) ref = SIFILIS.meta.tx_uf;
+  const mx = Math.max(...lista.map(x => Math.abs(x.v)), 1e-9);
+  const barra = (x, cls='') => `<div class="bar ${cls}"><span class="nome" title="${x.nome}">${x.nome}</span><span class="trk"><span class="fill" data-w="${Math.max(2, 100*Math.abs(x.v)/mx)}"></span></span><span class="v">${fmt(x.v,d)}</span></div>`;
+  const mostrandoCena = S.autoplay || (c && c.variavel === S.variavel && c.nivel === S.nivel);
+  const barras = cat ? blocoTipologia(vdef) : `<div class="t">Maiores valores (${{municipio:'municípios com ≥ 500 nascimentos',regiao_saude:'regiões de saúde',macrorregiao:'macrorregiões'}[S.nivel]})</div>${top.map(x => barra(x)).join('')}
+      ${ref!=null ? barra({nome:'média '+META.uf, v:ref}, 'ref') : ''}
+      <div class="t">Menores valores</div>${bottom.map(x => barra(x)).join('')}`;
+  $('#cena').innerHTML = `
+    <span class="eyebrow">${mostrandoCena ? 'Cena '+(S.cena+1)+' de '+CENAS.length : 'Análise livre'} · ${S.ano}</span>
+    <h2>${mostrandoCena ? c.titulo : vdef.nome}</h2>
+    ${mostrandoCena ? `<p class="texto">${c.texto}</p><p class="modelo">${c.modelo}</p>` : `<p class="texto">${vdef.desc || ''} ${META.uf}, ${S.ano}${ref!=null ? ': média estadual '+fmt(ref,d)+' '+(vdef.unid||'') : ''}.</p>`}
+    <div class="barras">${barras}${vdef.correlacao ? blocoSifilis() : ''}</div>
+    <p class="fonte">${mostrandoCena ? c.fonte : 'Fonte: warehouse nascer (SINASC, SIM, SIH, CNES, SINAN, base territorial do DATASUS).'}</p>
+    <p class="n">Exportado em ${new Date(META.gerado_em).toLocaleString('pt-BR')}. Taxas por residência da mãe.</p>`;
+  const selX = $('#sel-x'); if(selX) selX.addEventListener('change', e => { assumirControle(); S.xSifilis = e.target.value; painel(); });
+  requestAnimationFrame(() => document.querySelectorAll('.bar .fill').forEach(el => { el.style.width = el.dataset.w + '%'; }));
+  $('#pos').textContent = `${S.cena+1}/${CENAS.length}`;
+}
+function painelEsp(c, vdef){
+  const mostrandoCena = S.autoplay || (c && c.variavel === S.variavel && c.nivel === S.nivel);
+  $('#cena').innerHTML = `
+    <span class="eyebrow">${mostrandoCena ? 'Cena '+(S.cena+1)+' de '+CENAS.length : 'Análise livre'} · ${(vdef.anos||[S.ano]).join('-')}</span>
+    <h2>${mostrandoCena ? c.titulo : vdef.nome}</h2>
+    ${mostrandoCena ? `<p class="texto">${c.texto}</p><p class="modelo">${c.modelo}</p>` : `<p class="texto">${vdef.desc || ''}</p>`}
+    <div class="barras">${blocoEspacial(vdef)}</div>
+    <p class="fonte">${mostrandoCena ? c.fonte : 'Numerador por residência (SIM/SINAN), denominador SINASC; esperados pela taxa estadual; modelo BYM2 (PyMC) do passo "analise".'}</p>
+    <p class="n">Exportado em ${new Date(META.gerado_em).toLocaleString('pt-BR')}.</p>`;
+  requestAnimationFrame(() => document.querySelectorAll('.bar .fill').forEach(el => { el.style.width = el.dataset.w + '%'; }));
+  $('#pos').textContent = `${S.cena+1}/${CENAS.length}`;
+}
+function render(){
+  const vdef = VARS[S.variavel] || {};
+  if(vdef.so_municipio){ S.nivel = 'municipio'; selNivel.value = 'municipio'; selNivel.disabled = true; } else selNivel.disabled = false;
+  deckgl.setProps({layers: camadas()}); legenda(); painel();
+}
+
+// ---------- autoplay ----------
+function irCena(i, manual){
+  if(manual) assumirControle();
+  S.cena = (i + CENAS.length) % CENAS.length;
+  const c = CENAS[S.cena];
+  S.variavel = c.variavel; S.nivel = c.nivel; S.fluxos = c.camadas.includes('fluxos'); S.hospitais = c.camadas.includes('hospitais');
+  if(c.ano) S.ano = String(c.ano);
+  selVar.value = S.variavel; selNivel.value = S.nivel; selAno.value = S.ano; $('#chk-fluxos').checked = S.fluxos; $('#chk-hosp').checked = S.hospitais;
+  S.inicioCena = performance.now(); S.fluxosVisiveis = S.fluxos ? 0 : 1e9;
+  deckgl.setProps({initialViewState: { longitude: -44.6, latitude: -18.6, zoom: 5.4, transitionDuration: 1200 }});
+  render();
+}
+function tick(now){
+  const c = CENAS[S.cena]; const dur = (c.duracao || 18) * 1000; const t = now - S.inicioCena;
+  // fluxos aparecem progressivamente nos primeiros 7 s (maiores primeiro)
+  if(S.fluxos && S.fluxosVisiveis < 1e8){
+    const total = FLUXOS.filter(f => String(f.ano) === S.ano).length;
+    const alvo = Math.min(total, Math.floor(total * Math.min(1, t/7000) ** 0.6) + 5);
+    if(alvo !== S.fluxosVisiveis){ S.fluxosVisiveis = alvo; deckgl.setProps({layers: camadas()}); }
+    if(alvo >= total) S.fluxosVisiveis = 1e9;
+  }
+  if(S.autoplay){
+    $('#prog').style.width = Math.min(100, 100*t/dur) + '%';
+    if(t >= dur) irCena(S.cena + 1, false);
+  } else $('#prog').style.width = '0%';
+  requestAnimationFrame(tick);
+}
+irCena(0, false);
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
