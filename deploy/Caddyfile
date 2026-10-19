@@ -1,0 +1,19 @@
+# Servidor estático com HTTPS automático (Let's Encrypt) quando DOMINIO é um nome DNS que aponta para a VM.
+# Com DOMINIO=localhost (padrão) serve em http://localhost, sem certificado.
+{$DOMINIO}
+
+root * /srv
+file_server
+encode zstd gzip
+
+header {
+	-Server
+	X-Content-Type-Options nosniff
+	X-Frame-Options SAMEORIGIN
+	Referrer-Policy no-referrer
+	Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; font-src 'self' data:"
+}
+
+# os JSON mudam a cada "exportar": o navegador sempre reverifica
+@dados path /data/*
+header @dados Cache-Control "no-cache"

@@ -1,0 +1,46 @@
+{
+  "versao": "0.1",
+  "gerado_em": "2026-10-18T14:44:34.621Z",
+  "tema": "gestacao-parto-nascimento",
+  "base_territorial": "residencia",
+  "desfecho": {"id": "d_mni", "nome": "Mortalidade neonatal precoce (0–6 dias)"},
+  "unidade_analise": "regiao",
+  "periodo": "trienio_movel",
+  "estratificacao": null,
+  "modelos_conceituais": [
+    {"id": "victora", "nome": "Modelo hierárquico de análise", "referencia": "VICTORA, C. G.; HUTTLY, S. R.; FUCHS, S. C.; OLINTO, M. T. The role of conceptual frameworks in epidemiological analysis: a hierarchical approach. International Journal of Epidemiology, v. 26, n. 1, p. 224-227, 1997."}
+  ],
+  "categorias": [
+    {"modelo": "victora", "categoria": "vic_dist", "nome": "Socioeconômico", "categorias_harmonizadas": ["ctx"]},
+    {"modelo": "victora", "categoria": "vic_rep", "nome": "Reprodutivo e materno", "categorias_harmonizadas": ["mat"]},
+    {"modelo": "victora", "categoria": "vic_out", "nome": "Óbito neonatal / perinatal", "categorias_harmonizadas": ["des"]},
+    {"modelo": "victora", "categoria": "vic_prox", "nome": "Biológico", "categorias_harmonizadas": ["cli"]},
+    {"modelo": "victora", "categoria": "vic_ass", "nome": "Assistência e acesso", "categorias_harmonizadas": ["pro", "geo", "ofe"]}
+  ],
+  "variaveis": [
+    {"id": "v_escmae", "nome": "Escolaridade materna", "campo": "ESCMAE2010 / ESCMAE", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "distal", "categorias_harmonizadas": ["ctx"]},
+    {"id": "v_racamae", "nome": "Raça/cor da mãe", "campo": "RACACORMAE", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "distal", "categorias_harmonizadas": ["ctx"]},
+    {"id": "v_idhm", "nome": "IDHM, renda e desigualdade municipal", "campo": "IDHM, renda per capita, Gini (Atlas/PNUD; Censo)", "fonte": "IBGE", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "distal", "categorias_harmonizadas": ["ctx"]},
+    {"id": "v_territorio", "nome": "Região de saúde, macrorregião, urbano/rural", "campo": "tabela CIR; malha IBGE", "fonte": "IBGE", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "distal", "categorias_harmonizadas": ["geo", "ctx"]},
+    {"id": "v_idademae", "nome": "Idade da mãe", "campo": "IDADEMAE", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "intermediário I", "categorias_harmonizadas": ["mat"]},
+    {"id": "v_paridade", "nome": "Paridade e gestações anteriores", "campo": "QTDFILVIVO, QTDFILMORT, QTDGESTANT", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "intermediário I", "categorias_harmonizadas": ["mat"]},
+    {"id": "v_estciv", "nome": "Situação conjugal", "campo": "ESTCIVMAE", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "distal", "categorias_harmonizadas": ["ctx", "mat"]},
+    {"id": "d_mni", "nome": "Mortalidade neonatal precoce (0–6 dias)", "campo": "óbitos 0–6 d / nascidos vivos × 1.000, por residência", "fonte": "DER", "mensurabilidade": "direta", "papel": "desfecho", "nivel_hierarquico": "desfecho", "categorias_harmonizadas": ["des"]},
+    {"id": "d_perinatal", "nome": "Mortalidade perinatal", "campo": "(óbitos fetais ≥22 sem + óbitos 0–6 d) / (NV + óbitos fetais) × 1.000", "fonte": "DER", "mensurabilidade": "direta", "papel": "desfecho", "nivel_hierarquico": "desfecho", "categorias_harmonizadas": ["des"]},
+    {"id": "v_peso", "nome": "Peso ao nascer", "campo": "PESO", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "proximal", "categorias_harmonizadas": ["cli"]},
+    {"id": "v_apgar5", "nome": "Apgar no 5º minuto", "campo": "APGAR5 (APGAR1)", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "desfecho", "nivel_hierarquico": "proximal", "categorias_harmonizadas": ["cli", "des"]},
+    {"id": "v_idanomal", "nome": "Anomalia congênita", "campo": "IDANOMAL / CODANOMAL", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "proximal", "categorias_harmonizadas": ["cli"]},
+    {"id": "v_gravidez", "nome": "Tipo de gravidez", "campo": "GRAVIDEZ", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "proximal", "categorias_harmonizadas": ["cli"]},
+    {"id": "v_kotel", "nome": "Índice de adequação do pré-natal", "campo": "KOTELCHUCK", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "intermediário II", "categorias_harmonizadas": ["pro"]},
+    {"id": "v_parto", "nome": "Tipo de parto", "campo": "PARTO", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "intermediário II", "categorias_harmonizadas": ["pro"]},
+    {"id": "d_dist", "nome": "Distância e tempo até o local do parto", "campo": "OSRM/Valhalla sobre OSM: sede do município de residência → estabelecimento", "fonte": "DER", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "intermediário II", "categorias_harmonizadas": ["geo"]},
+    {"id": "v_codestab", "nome": "Estabelecimento do parto", "campo": "CODESTAB", "fonte": "SINASC", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "intermediário II", "categorias_harmonizadas": ["geo", "ofe"]},
+    {"id": "v_leitos_utin", "nome": "Leitos de UTI neonatal e UCIN", "campo": "LT: UTI neonatal II/III, UCINCo, UCINCa", "fonte": "CNES", "mensurabilidade": "direta", "papel": "exposicao", "nivel_hierarquico": "intermediário II", "categorias_harmonizadas": ["ofe"]},
+    {"id": "d_utin_uso", "nome": "Uso de UTI neonatal por residência", "campo": "AIHs de RN com UTI neonatal / NV × 1.000", "fonte": "DER", "mensurabilidade": "direta", "papel": "desfecho", "nivel_hierarquico": "intermediário II", "categorias_harmonizadas": ["pro", "des"]},
+    {"id": "d_rmm", "nome": "Razão de mortalidade materna", "campo": "óbitos maternos / 100 mil NV; triênio; suavização bayesiana", "fonte": "DER", "mensurabilidade": "proxy", "papel": "desfecho", "nivel_hierarquico": "desfecho", "categorias_harmonizadas": ["des"]}
+  ],
+  "verificacao": [
+    {"tipo": "warn", "titulo": "Proxies", "texto": "“Razão de mortalidade materna”: medidas aproximadas; declarar a construção e testar sensibilidade."},
+    {"tipo": "info", "titulo": "Estratificação", "texto": "Exposições de posição socioeconômica pedem apresentação estratificada (CSDH): o gradiente é o resultado, não o ajuste."}
+  ]
+}

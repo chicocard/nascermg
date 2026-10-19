@@ -1,0 +1,29 @@
+# Sífilis congênita × outras taxas municipais. Edite e rode:  .\scripts\run.ps1 analise
+
+# municípios entram na correlação e na regressão se somarem ao menos este nº de nascidos vivos nos anos com SINAN
+nv_minimo_municipio: 200
+
+# variáveis correlacionadas com a taxa de sífilis congênita (nome interno: rótulo). Apague linhas para excluir.
+variaveis:
+  pct_prenatal_adequado: "Pré-natal adequado (Kotelchuck), %"
+  pct_prenatal_7mais: "Pré-natal com 7+ consultas, %"
+  pct_maes_menor_20: "Mães com menos de 20 anos, %"
+  pct_maes_ate_fundamental: "Mães com até o fundamental, %"
+  pct_partos_sus: "Partos SUS / NV, %"
+  pct_cesarea: "Cesáreas, %"
+  pct_evasao_partos: "Partos fora do município, %"
+  pct_evasao_regiao: "Partos fora da região, %"
+  pct_partos_hospital_com_utin: "Partos em hospital com UTIN, %"
+  dist_utin_km: "Distância à UTI neonatal, km"
+  dist_cesarea_km: "Distância ao município com cesárea, km"
+  dist_media_km: "Distância média percorrida, km"
+  leitos_obst_por_1000nv: "Leitos obstétricos por mil NV"
+  pct_prematuro: "Prematuridade, %"
+  pct_baixo_peso: "Baixo peso, %"
+  tmnp_bruta: "Mortalidade neonatal precoce, por mil NV"
+  tmn_bruta: "Mortalidade neonatal, por mil NV"
+  rn_uti_por_1000nv: "RN internados em UTI (SIH), por mil NV"
+  log_nv_ano: "Nascidos vivos por ano (log)"
+
+# covariáveis do modelo quase-Poisson (casos de sífilis congênita, offset = ln NV). Ordem livre.
+regressao_covariaveis: [pct_prenatal_adequado, pct_maes_menor_20, pct_maes_ate_fundamental, pct_partos_sus, pct_evasao_regiao, dist_utin_km, log_nv_ano]

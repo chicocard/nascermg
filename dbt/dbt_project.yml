@@ -1,0 +1,86 @@
+name: nascer
+version: "0.1.0"
+config-version: 2
+profile: nascer
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: target
+clean-targets: [target, dbt_packages]
+
+vars:
+  # UF do piloto e seu código IBGE de 2 dígitos (MG = 31). Usados para filtrar arquivos nacionais (DOFET).
+  uf: "MG"
+  uf_cod: "31"
+  # Onde estão os Parquet gerados pela ingestão
+  bronze: "/data/bronze"
+  # Tabelas da base territorial do DATASUS (confira os nomes em bronze/territorio/_colunas.txt e ajuste aqui)
+  territorio:
+    tabela_rel: "rl_municip_regsaud"   # relação município -> região de saúde
+    col_mun: "co_municip"             # código do município (6 dígitos)
+    col_reg: "co_regsaud"             # código da região de saúde
+    tabela_reg: "tb_regsaud"          # nomes das regiões de saúde
+    col_reg_nome: "ds_nome"
+  # Códigos SIGTAP dos procedimentos de parto (conferir em seeds/sigtap_partos.csv)
+  # Códigos de leito do CNES (conferir em seeds/cnes_codleito.csv)
+  #
+  # Parâmetros de necessidade (Caderno 1 - Critérios e Parâmetros Assistenciais SUS 2017, NESCON/UFMG;
+  # Projeto Parâmetros NESCON/FM/UFMG 2012-2013; Portaria SAS/MS 650/2011; Portaria GM/MS 930/2012).
+  # Faixas min/max = percentis 25 e 75 das capitais (Quadros 39-42 do Caderno 1). Ajuste conforme a análise local.
+  parametros:
+    fator_subregistro: 1.05          # NV x 1,05 = gestantes estimadas / total de recém-nascidos
+    prop_alto_risco: 0.15            # 15% das gestantes
+    prop_alto_risco_hospitalar: 0.10 # até 10% necessitam atenção hospitalar de alto risco
+    # Rede Cegonha (Quadro 5)
+    rc_tmp_obst: 2.5
+    rc_ocupacao: 0.70
+    rc_ajuste_outros_proc: 1.21
+    rc_leitos_gar_prop: 0.10         # 10% dos leitos obstétricos (15% em alguns territórios)
+    rc_uti_adulto_prop: 0.015        # 1 a 2% dos leitos obstétricos (6% em alguns territórios)
+    rc_utin_por_1000nv: 2.0
+    rc_ucin_por_1000nv: 3.0
+    rc_canguru_por_1000nv: 1.0
+    # Equações 1 e 3 (Seção V) - faixas de referência
+    tmp_obst_min: 2.4
+    tmp_obst_max: 3.1
+    ti_neonat_min: 82.4              # internações de 0-27 dias por mil NV SUS
+    ti_neonat_max: 168.0
+    tmp_neonat_min: 6.5
+    tmp_neonat_max: 8.2
+    p_uti_neonat_min: 0.2354
+    p_uti_neonat_max: 0.3979
+    tmp_uti_neonat_min: 8.8
+    tmp_uti_neonat_max: 11.9
+    p_uti_obst_min: 0.0005
+    p_uti_obst_max: 0.0066
+    tmp_uti_obst_min: 2.87
+    tmp_uti_obst_max: 4.59
+    ocupacao_esperada: 0.75          # escolher no Quadro 43 (Jones, 2011) conforme porte e fila admitida
+    fator_recusa: 1.0                # FR = 1 na ausência de dados de recusa (subestima)
+    disponibilidade_uti: 1.0         # DF = proporção de leitos de UTI efetivamente disponíveis
+    prop_sem_plano: null             # se null, usa a proporção observada de partos SUS (SIH/SINASC)
+
+models:
+  nascer:
+    +materialized: table
+    silver:
+      +schema: silver
+    gold:
+      +schema: gold
+    plano:
+      +schema: plano
+
+seeds:
+  nascer:
+    +schema: ref
+    +quote_columns: false
+    cnes_codleito:
+      +column_types: {codleito: varchar, grupo: varchar, descricao: varchar, conferido: varchar}
+    sigtap_partos:
+      +column_types: {proc_rea: varchar, tipo_parto: varchar, alto_risco: varchar, descricao: varchar}
+    cid_near_miss:
+      +column_types: {cid_prefixo: varchar, condicao: varchar}
+    sih_cobranca:
+      +column_types: {cobranca: varchar, descricao: varchar, grupo: varchar, conferido: varchar}

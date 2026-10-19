@@ -1,0 +1,134 @@
+[
+ {
+  "id": "fluxos",
+  "titulo": "Onde nascem as crianças de MG",
+  "variavel": "pct_parto_fora_municipio",
+  "nivel": "municipio",
+  "camadas": [
+   "coropleta",
+   "fluxos"
+  ],
+  "duracao": 22,
+  "texto": "Em 2023, 233.916 crianças nasceram de mães residentes em MG. 39,1% nasceram fora do município de residência da mãe e 14,5% fora da própria região de saúde. As linhas mostram os deslocamentos de ao menos dez nascimentos no ano; os maiores: Ribeirão das Neves → Belo Horizonte (3.190); Contagem → Belo Horizonte (2.675); Santa Luzia → Belo Horizonte (2.249); Belo Horizonte → Nova Lima (1.953); Vespasiano → Belo Horizonte (1.658).",
+  "modelo": "Três Demoras (Thaddeus e Maine, 1994): a segunda demora é chegar ao serviço. A distância aqui é entre sedes municipais; o tempo real de viagem é a Fase 1 seguinte.",
+  "fonte": "SINASC (residência da mãe e estabelecimento do parto); coordenadas das sedes municipais (base territorial do DATASUS)."
+ },
+ {
+  "id": "cesarea",
+  "titulo": "Cesárea: duas Minas",
+  "variavel": "pct_cesarea",
+  "nivel": "macrorregiao",
+  "camadas": [
+   "coropleta"
+  ],
+  "duracao": 18,
+  "texto": "59,1% dos partos de 2023 foram cesáreas; em 36,0% de todos os nascimentos a cesárea ocorreu antes de qualquer trabalho de parto. Por macrorregião, a taxa vai de 44,3% (Jequitinhonha) a 71,7% (Centro Sul).",
+  "modelo": "Classificação de Robson (OMS, 2015): a comparação válida é dentro de cada grupo obstétrico; a taxa bruta mistura perfil de risco e prática assistencial. Transição obstétrica (Souza et al., 2014): excesso de intervenção e falta de acesso coexistem.",
+  "fonte": "SINASC: PARTO e STCESPARTO."
+ },
+ {
+  "id": "mortalidade",
+  "titulo": "Mortalidade neonatal precoce",
+  "variavel": "tx_mort_neonatal_precoce",
+  "nivel": "macrorregiao",
+  "camadas": [
+   "coropleta"
+  ],
+  "duracao": 18,
+  "texto": "1.334 recém-nascidos morreram nos primeiros seis dias de vida em 2023: 5,70 por mil nascidos vivos (7,92 até 27 dias). Por macrorregião, de 4,47 (Sudoeste) a 7,53 (Nordeste). Taxas de áreas pequenas são instáveis: o mapa usa a residência da mãe, nunca o local do óbito.",
+  "modelo": "Modelo hierárquico (Victora et al., 1997): o efeito da assistência sobre o óbito passa pelo peso ao nascer e pela prematuridade; ajustar por eles apaga o que se quer medir. Lista de causas evitáveis (Malta et al., 2007).",
+  "fonte": "SIM (óbitos de 0 a 6 dias, por residência) e SINASC (denominador)."
+ },
+ {
+  "id": "utin",
+  "titulo": "UTI neonatal: oferta e necessidade",
+  "variavel": "saldo_utin_rc",
+  "nivel": "macrorregiao",
+  "camadas": [
+   "coropleta",
+   "hospitais"
+  ],
+  "duracao": 20,
+  "texto": "MG tinha 941 leitos de UTI neonatal em dezembro de 2023. O parâmetro da Rede Cegonha (2 leitos por mil nascidos vivos) pede 468. O saldo, porém, é desigual: Nordeste -8,3; Oeste -4,8; Jequitinhonha -1,0; Sudeste +55,7; Centro +248,4. Os círculos são hospitais com UTIN, proporcionais aos leitos.",
+  "modelo": "Parâmetros de necessidade (Caderno 1, NESCON/UFMG, 2017): necessidade pela população residente, oferta pela localização, corrigida pelo fator de não residentes (Fnr). Donabedian: estrutura sem processo não explica resultado.",
+  "fonte": "CNES (leitos, competência de dezembro) e SINASC (nascidos vivos)."
+ },
+ {
+  "id": "prenatal",
+  "titulo": "Pré-natal adequado",
+  "variavel": "pct_prenatal_adequado",
+  "nivel": "macrorregiao",
+  "camadas": [
+   "coropleta"
+  ],
+  "duracao": 16,
+  "texto": "80,2% das gestantes de 2023 tiveram pré-natal adequado ou mais que adequado pelo índice de Kotelchuck (início até o 4º mês e número de consultas compatível com a duração da gestação). Por macrorregião: de 70,2% (Nordeste) a 88,5% (Triângulo do Norte).",
+  "modelo": "Kotelchuck (1994) mede utilização, não conteúdo. Continuum do cuidado (Kerber et al., 2007): a lacuna entre pré-natal e parto é o que se procura.",
+  "fonte": "SINASC: KOTELCHUCK (calculado pelo DATASUS)."
+ },
+ {
+  "id": "tipologia",
+  "titulo": "Tipos de município: acesso e organização",
+  "variavel": "cluster",
+  "nivel": "municipio",
+  "camadas": [
+   "coropleta"
+  ],
+  "duracao": 26,
+  "texto": "Agrupamento dos 853 municípios (2022-2023) por tamanho, distância às UTI neonatal e adulto, distância ao município que realiza cesáreas, distância média percorrida, partos fora do município e da região, cesáreas recebidas de outros municípios, leitos, pré-natal, SUS e cesárea — mortalidade não entra no agrupamento, é descrita por tipo. Antes do agrupamento, os municípios são separados em sem (A, 3 tipos) e com (B, 3 tipos) serviço de parto local. A1 (173 municípios, 10,4% dos NV): médios, sem serviço de parto, UTIN até 40 km; A2 (88 municípios, 4,1% dos NV): médios, sem serviço de parto, UTIN a 40-100 km, parte dos partos fora da região; A3 (350 municípios, 7,2% dos NV): pequenos, sem serviço de parto, UTIN a 40-100 km, parte dos partos fora da região; B1 (133 municípios, 11,9% dos NV): médios, com parto e cesárea local, UTIN a 40-100 km; B2 (68 municípios, 22,4% dos NV): médios-grandes, com parto e cesárea local, UTIN a 40-100 km; B3 (41 municípios, 44,0% dos NV): grandes, polo de partos e cesáreas, com UTI neonatal. Mortalidade neonatal precoce: de 5,61 (B3) a 6,27 (A2) por mil NV; a média estadual é 5,87.",
+  "modelo": "Tipologia como etapa do modelo hierárquico (Victora et al., 1997): contexto e acesso (nível distal) descritos antes de qualquer associação com o desfecho. Três Demoras (Thaddeus e Maine, 1994) para as distâncias; Andersen (1995) para oferta e financiamento. k-means sobre variáveis padronizadas com blocos equilibrados; k pela silhueta; taxas estabilizadas por Bayes empírico.",
+  "fonte": "SINASC, SIM, SIH, CNES e base territorial (coordenadas das sedes). Distâncias geodésicas entre sedes, não rodoviárias."
+ },
+ {
+  "id": "sifilis",
+  "titulo": "Sífilis congênita: o pré-natal que falhou",
+  "variavel": "tx_sifc_por_1000nv",
+  "nivel": "macrorregiao",
+  "camadas": [
+   "coropleta"
+  ],
+  "duracao": 30,
+  "texto": "Em 2023, 2.237 casos de sífilis congênita foram notificados em residentes de MG: 9,6 por mil nascidos vivos. Por macrorregião, de 0,9 (Jequitinhonha) a 15,4 (Nordeste). Em 8,6% dos casos a mãe não fez pré-natal; em 83,8% o tratamento materno foi inadequado ou não feito; em 28,2% a sífilis materna só foi diagnosticada no parto, depois dele ou não foi. Correlações de Spearman com as demais taxas municipais (municípios com ≥ 200 NV): Nascidos vivos por ano (log) ρ = 0,27; Pré-natal com 7+ consultas ρ = -0,24; Partos em hospital com UTIN ρ = 0,22; Partos SUS / NV ρ = -0,17. Ajustadas entre si (quase-Poisson, por desvio-padrão): pré-natal adequado IRR 0,82 [0,77–0,88]; partos fora da região IRR 1,21 [1,13–1,29]; distância à UTIN IRR 0,74 [0,66–0,84]; tamanho do município IRR 1,20 [1,12–1,28]. Por tipo de município, de 4,6 (B1) a 11,3 (B3) por mil NV; 29% dos municípios B1 não notificaram caso algum. Leitura ecológica: as unidades são municípios; taxas altas também refletem capacidade de testar e notificar.",
+  "modelo": "Evento sentinela da qualidade do pré-natal (OMS/MS: diagnóstico e tratamento na gestação evitam o caso). Modelo hierárquico (Victora et al., 1997): escolaridade e idade materna no nível distal, pré-natal no intermediário. Associações entre taxas municipais são ecológicas (Morgenstern, 1995): descrevem territórios, não gestantes.",
+  "fonte": "SINAN (sífilis congênita, por residência, ano do diagnóstico), SINASC (denominador), tipologia e distâncias do passo 'analise'."
+ },
+ {
+  "id": "quente_sifc",
+  "titulo": "Áreas quentes: sífilis congênita",
+  "variavel": "esp:sifc:classe",
+  "nivel": "municipio",
+  "camadas": [
+   "coropleta"
+  ],
+  "duracao": 28,
+  "texto": "Sífilis congênita: 4.520 casos em 2022-2023. O modelo bayesiano espacial (BYM2) estima, para cada município, o risco relativo em relação à média estadual e a probabilidade de ele ser maior que 1, emprestando força dos vizinhos onde há poucos nascimentos. Áreas quentes (P ≥ 80%): 60 municípios (33 com P ≥ 95%) e 18 regiões de saúde: Teófilo Otoni/Malacacheta (RR 2,61, P 1,00); Juiz de Fora (RR 2,21, P 1,00); Ipatinga (RR 2,19, P 1,00); Vespasiano/Lagoa Santa (RR 2,08, P 1,00); Governador Valadares (RR 2,08, P 1,00); Coronel Fabriciano/Timóteo (RR 1,86, P 1,00). Municípios com maior probabilidade: Teófilo Otoni (RR 4,08, P 1,00); Ipaba (RR 3,66, P 1,00); Santana do Paraíso (RR 3,06, P 1,00); Vespasiano (RR 2,88, P 1,00); Ribeirão das Neves (RR 2,75, P 1,00); Santa Luzia (RR 2,69, P 1,00). Autocorrelação espacial (Moran I sobre o risco sem suavização espacial) = 0,24 (p 0,001); aglomerados alto-alto (LISA): 54 municípios. Vizinhança: delaunay podada (sedes).",
+  "modelo": "Mapeamento de doenças (Besag, York e Mollié, 1991; Riebler et al., 2016): o risco de cada área é estimado com informação dos vizinhos; a decisão por probabilidade de excesso de risco segue Richardson et al. (2004). Moran (1950) e LISA (Anselin, 1995) para aglomerados.",
+  "fonte": "SINAN (numerador, por residência) e SINASC (denominador); esperados por padronização indireta pela taxa estadual."
+ },
+ {
+  "id": "quente_neonatal_precoce",
+  "titulo": "Áreas quentes: mortalidade neonatal precoce",
+  "variavel": "esp:neonatal_precoce:classe",
+  "nivel": "municipio",
+  "camadas": [
+   "coropleta"
+  ],
+  "duracao": 28,
+  "texto": "Mortalidade neonatal precoce (0-6 dias): 2.754 casos em 2022-2023. O modelo bayesiano espacial (BYM2) estima, para cada município, o risco relativo em relação à média estadual e a probabilidade de ele ser maior que 1, emprestando força dos vizinhos onde há poucos nascimentos. Áreas quentes (P ≥ 80%): 26 municípios (5 com P ≥ 95%) e 14 regiões de saúde: Betim (RR 1,19, P 0,98); Caratinga (RR 1,27, P 0,97); Teófilo Otoni/Malacacheta (RR 1,23, P 0,97); Governador Valadares (RR 1,18, P 0,95); Ouro Preto (RR 1,22, P 0,95); Uberaba (RR 1,17, P 0,93). Municípios com maior probabilidade: Governador Valadares (RR 1,37, P 0,99); Betim (RR 1,26, P 0,98); Caratinga (RR 1,43, P 0,98); Alpinópolis (RR 1,55, P 0,97); Visconde do Rio Branco (RR 1,45, P 0,96); Januária (RR 1,36, P 0,94). Autocorrelação espacial (Moran I sobre o risco sem suavização espacial) = 0,07 (p 0,001); aglomerados alto-alto (LISA): 23 municípios. Vizinhança: delaunay podada (sedes).",
+  "modelo": "Mesmo modelo; a mortalidade neonatal precoce é o desfecho mais sensível à assistência ao parto e ao recém-nascido (Lansky et al., 2014). Mortalidade materna: eventos raros demais para áreas quentes municipais; veja o nível região de saúde na análise livre.",
+  "fonte": "SIM (numerador, por residência) e SINASC (denominador); esperados por padronização indireta pela taxa estadual."
+ },
+ {
+  "id": "sus",
+  "titulo": "Quem financia o parto",
+  "variavel": "pct_partos_sus",
+  "nivel": "macrorregiao",
+  "camadas": [
+   "coropleta"
+  ],
+  "duracao": 14,
+  "texto": "As internações de parto do SUS corresponderam a 63,4% dos nascidos vivos de 2023; o restante nasceu no setor privado ou suplementar. A proporção SUS muda o denominador correto de qualquer parâmetro de leitos.",
+  "modelo": "Andersen (1995): recursos capacitantes. Equação 1 do Caderno 1: população de referência = nascidos vivos × proporção sem plano de saúde.",
+  "fonte": "SIH/SUS (AIHs de parto, por residência) e SINASC."
+ }
+]

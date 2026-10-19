@@ -1,0 +1,11 @@
+nascer:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '/data/warehouse/nascer.duckdb') }}"
+      threads: 4
+      settings:
+        memory_limit: "{{ env_var('DUCKDB_MEMORY', '8GB') }}"
+        temp_directory: "{{ env_var('DUCKDB_TMP', '/data/warehouse/tmp') }}"
+        preserve_insertion_order: false

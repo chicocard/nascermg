@@ -1,0 +1,37 @@
+# Análise espacial bayesiana (áreas quentes). Edite e rode:  .\scripts\run.ps1 analise
+
+# desfechos: nome interno -> numerador (coluna de main_gold.ind_territorio), rótulo e se usa só os anos com SINAN
+desfechos:
+  sifc:             {numerador: casos_sifc,                  rotulo: "Sífilis congênita",            so_anos_sinan: sim}
+  neonatal:         {numerador: obitos_neonatais,            rotulo: "Mortalidade neonatal (0-27 dias)"}
+  neonatal_precoce: {numerador: obitos_neonatais_precoces,   rotulo: "Mortalidade neonatal precoce (0-6 dias)"}
+  materna:          {numerador: obitos_maternos_declarados,  rotulo: "Mortalidade materna declarada"}
+
+# níveis analisados com o modelo espacial completo (município e região de saúde). Macrorregiões recebem só
+# SMR e probabilidade sem suavização espacial (16 unidades são poucas para o modelo).
+niveis: [municipio, regiao_saude]
+
+# vizinhança entre municípios: "poligonos" usa a malha do IBGE (app/public/data/malha_uf.geojson; baixada se
+# faltar e houver internet; exige shapely) e cai para "delaunay" (triangulação das sedes, arestas acima de
+# poda_x_mediana vezes a mediana removidas) quando não há malha. "knn" usa os k vizinhos mais próximos.
+vizinhanca: poligonos
+poda_x_mediana: 3
+k_vizinhos: 6
+
+# modelo: "bym2" (Besag-York-Mollié reparametrizado por Riebler et al. 2016; PyMC + nutpie) ou "eb"
+# (Bayes empírico Poisson-gama, sem componente espacial; usado automaticamente se o PyMC não estiver disponível)
+modelo: bym2
+amostras: 1000
+aquecimento: 1000
+cadeias: 2
+semente: 42
+
+# regras de decisão (Richardson et al. 2004): P(RR > 1) >= limiar_quente = área quente; >= limiar_forte = quente
+# com alta confiança; <= limiar_fria = área fria
+limiar_quente: 0.80
+limiar_forte: 0.95
+limiar_fria: 0.20
+
+# autocorrelação espacial (Moran global e LISA) sobre o risco suavizado: nº de permutações e nível de significância
+permutacoes: 999
+alfa_lisa: 0.05

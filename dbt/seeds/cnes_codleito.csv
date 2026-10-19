@@ -1,0 +1,14 @@
+codleito,grupo,descricao,conferido
+10,obst_cirurgica,Obstetrícia cirúrgica,nao
+43,obst_clinica,Obstetrícia clínica,nao
+74,uti_adulto,UTI adulto tipo I,nao
+75,uti_adulto,UTI adulto tipo II,nao
+76,uti_adulto,UTI adulto tipo III,nao
+77,uti_pediatrica,UTI pediátrica tipo I,nao
+78,uti_pediatrica,UTI pediátrica tipo II,nao
+79,uti_pediatrica,UTI pediátrica tipo III,nao
+80,uti_neonatal,UTI neonatal tipo I,nao
+81,uti_neonatal,UTI neonatal tipo II,nao
+82,uti_neonatal,UTI neonatal tipo III,nao
+92,uci_neonatal,Unidade de cuidados intermediários neonatal convencional (UCINCo),nao
+93,uci_neonatal,Unidade de cuidados intermediários neonatal canguru (UCINCa),nao

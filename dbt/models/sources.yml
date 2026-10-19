@@ -1,0 +1,40 @@
+version: 2
+
+# Fontes = arquivos Parquet da camada bronze, lidos diretamente pelo DuckDB.
+# union_by_name=true tolera colunas que existem só em alguns anos; filename=true guarda a origem.
+sources:
+  - name: bronze
+    schema: main
+    tables:
+      - name: sinasc
+        description: Declarações de Nascido Vivo (SINASC, DN por residência), todas as colunas como texto.
+        meta:
+          external_location: "read_parquet('{{ var('bronze') }}/sinasc/*.parquet', union_by_name=true, filename=true)"
+      - name: sim_do
+        description: Declarações de Óbito (SIM, DO por residência).
+        meta:
+          external_location: "read_parquet('{{ var('bronze') }}/sim_do/*.parquet', union_by_name=true, filename=true)"
+      - name: sim_dofet
+        description: Declarações de Óbito Fetal (arquivo nacional).
+        meta:
+          external_location: "read_parquet('{{ var('bronze') }}/sim_dofet/*.parquet', union_by_name=true, filename=true)"
+      - name: sih_rd
+        description: AIH reduzida (SIH/SUS), mensal.
+        meta:
+          external_location: "read_parquet('{{ var('bronze') }}/sih_rd/*.parquet', union_by_name=true, filename=true)"
+      - name: cnes_lt
+        description: CNES - leitos por estabelecimento e competência.
+        meta:
+          external_location: "read_parquet('{{ var('bronze') }}/cnes_lt/*.parquet', union_by_name=true, filename=true)"
+      - name: cnes_st
+        description: CNES - cadastro de estabelecimentos por competência.
+        meta:
+          external_location: "read_parquet('{{ var('bronze') }}/cnes_st/*.parquet', union_by_name=true, filename=true)"
+      - name: sinan_sifc
+        description: Notificações de sífilis congênita (SINAN, arquivo nacional por ano de notificação).
+        meta:
+          external_location: "read_parquet('{{ var('bronze') }}/sinan_sifc/*.parquet', union_by_name=true, filename=true)"
+      - name: municipios_ibge
+        description: Municípios do IBGE (API de localidades).
+        meta:
+          external_location: "read_parquet('{{ var('bronze') }}/territorio/municipios_ibge.parquet')"

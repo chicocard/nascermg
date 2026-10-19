@@ -1,0 +1,121 @@
+# Mapa entre os identificadores de variáveis do painel "Modelos do Nascer" e o warehouse.
+#
+# Para cada id:
+#   ind:   expressão SQL no nível individual (nascido vivo). Aliases disponíveis:
+#          f = fato_nascimentos, o = óbito neonatal vinculado pela DN, t = ind_territorio (município de residência, mesmo ano)
+#   tipo:  binario | continuo | categorico | contagem  (define a agregação padrão: % / mediana / —)
+#   agg:   agregação explícita para níveis territoriais (sobrepõe a padrão)
+#   terr:  coluna de ind_territorio (t.) quando a variável só existe no nível territorial
+#   nao_mensuravel: true  -> entra no plano apenas como lacuna declarada
+#   nota:  limitação a registrar
+#
+# Variáveis sem entrada aqui são listadas pelo gerador como "não implementadas nesta fase".
+
+# ---- SINASC: mãe, gestação, parto, recém-nascido
+v_idademae:   {ind: "f.idademae", tipo: continuo}
+v_escmae:     {ind: "f.escmae2010", tipo: categorico, agg: "100.0*avg(case when f.escmae2010 in ('0','1','2') then 1 else 0 end)", agg_nome: pct_maes_ate_fundamental, nota: "CONFERIR códigos ESCMAE2010"}
+v_racamae:    {ind: "f.racacormae", tipo: categorico, agg: "100.0*avg(case when f.racacormae in ('2','4') then 1 else 0 end)", agg_nome: pct_maes_pretas_pardas}
+v_estciv:     {ind: "f.estcivmae", tipo: categorico, agg: "100.0*avg(case when f.estcivmae = '1' then 1 else 0 end)", agg_nome: pct_maes_solteiras, nota: "código 1 = solteira; CONFERIR"}
+v_paridade:   {ind: "coalesce(f.qtdfilvivo,0)+coalesce(f.qtdfilmort,0)", tipo: continuo}
+v_cesprev:    {ind: "f.cesarea_previa", tipo: binario}
+v_gravidez:   {ind: "f.gestacao_multipla", tipo: binario}
+v_ig:         {ind: "f.semagestac", tipo: continuo}
+v_apresent:   {ind: "f.tpapresent", tipo: categorico, agg: "100.0*avg(case when f.tpapresent in ('2','3') then 1 else 0 end)", agg_nome: pct_apresentacao_nao_cefalica}
+v_consprenat: {ind: "f.consprenat", tipo: continuo}
+v_mesprenat:  {ind: "try_cast(f.mesprenat as integer)", tipo: continuo}
+v_kotel:      {ind: "f.prenatal_adequado", tipo: binario, nota: "adequado + mais que adequado (códigos 4 e 5 do DATASUS, conferidos nos dados)"}
+v_parto:      {ind: "f.cesarea", tipo: binario}
+v_robson:     {ind: "f.tprobson", tipo: categorico, agg: "100.0*avg(case when f.tprobson in ('01','1','02','2','05','5') then f.cesarea else 0 end)", agg_nome: pct_cesareas_robson_1_2_5}
+v_sttrabpart: {ind: "(f.sttrabpart = '1')::integer", tipo: binario}
+v_stcesparto: {ind: "f.cesarea_sem_trabalho_parto", tipo: binario}
+v_tpnascassi: {ind: "f.tpnascassi", tipo: categorico, agg: "100.0*avg(case when f.tpnascassi = '2' then 1 else 0 end)", agg_nome: pct_partos_enfermagem_obstetrica, nota: "código 2 = enfermeira/obstetriz; CONFERIR"}
+v_locnasc:    {ind: "(f.locnasc <> '1')::integer", tipo: binario, agg_nome: pct_partos_nao_hospitalares}
+v_peso:       {ind: "f.peso", tipo: continuo}
+v_apgar5:     {ind: "f.apgar5_menor_7", tipo: binario}
+v_idanomal:   {ind: "f.anomalia", tipo: binario}
+v_sexo:       {ind: "f.sexo", tipo: categorico}
+v_codmunres:  {ind: "f.codmunres7", tipo: categorico}
+v_codmunnasc: {ind: "f.codmunnasc7", tipo: categorico}
+v_codestab:   {ind: "f.cnes", tipo: categorico}
+
+# ---- SIM (vinculado à DN quando possível; territorial via ind_territorio)
+v_causabas:   {nota: "variável do óbito: sem vínculo DN↔DO nos microdados públicos; use fato_obitos_neonatais/maternos ou o nível territorial"}
+v_idadeobito: {terr: "t.tx_mort_neonatal", nota: "no individual não há vínculo DN↔DO; territorial = mortalidade neonatal (0-27 d) por 1.000 NV"}
+v_obitomat:   {terr: "t.rmm_declarada", nota: "RMM declarada, sem correção por investigação"}
+v_obitoparto: {nota: "variável do óbito; sem vínculo individual nos microdados públicos"}
+v_lococor:    {nota: "variável do óbito; sem vínculo individual nos microdados públicos"}
+v_codmunocor: {nota: "variável do óbito; sem vínculo individual nos microdados públicos"}
+v_assistmed:  {nota: "variável do óbito; sem vínculo individual nos microdados públicos"}
+v_numerodn:   {nao_mensuravel: true, nota: "NUMERODN/NUMERODO não constam dos microdados públicos do DATASUS; vínculo só com bases identificadas (SES)"}
+v_fonteinv:   {nota: "variável do óbito; disponível em fato_obitos_neonatais.investigado (S/N)"}
+v_dofet:      {terr: "t.nascidos_vivos", nota: "óbitos fetais ainda não agregados no ind_territorio (stg_sim_dofet disponível)"}
+
+# ---- SIH (apenas territorial nesta fase: não há chave pública DN <-> AIH)
+v_proc_rea:   {terr: "t.pct_cesarea_sus"}
+v_diag_princ: {terr: "t.near_miss_por_1000nv", nota: "proxy: condições sentinela no diagnóstico principal"}
+v_munic_sih:  {terr: "t.partos_sus_fora_municipio"}
+v_uti:        {terr: "t.uti_materna_por_1000nv"}
+v_morte_sih:  {terr: "t.obitos_maternos_declarados", nota: "SIM é a fonte de referência; MORTE do SIH não agregado ainda"}
+v_cobranca:   {terr: "t.transferencias_obst_por_1000nv"}
+v_dias_perm:  {nota: "não agregado nesta fase"}
+v_car_int:    {nota: "não agregado nesta fase"}
+v_gestrisco:  {nota: "não agregado nesta fase"}
+v_idade_sih:  {terr: "t.rn_uti_por_1000nv"}
+v_instru_sih: {nota: "preferir ESCMAE2010 do SINASC"}
+v_val_tot:    {nota: "não agregado nesta fase"}
+v_sp_atos:    {nota: "arquivos SP não carregados nesta fase"}
+
+# ---- CNES (estrutura do hospital do parto no nível individual; oferta por 1.000 NV no territorial)
+v_leitos_obst: {ind: "f.est_leitos_obstetricos", tipo: continuo, terr: "t.leitos_obst_por_1000nv"}
+v_leitos_utin: {ind: "f.est_tem_uti_neonatal", tipo: binario, terr: "t.leitos_utin_por_1000nv"}
+v_leitos_utia: {ind: "f.est_tem_uti_adulto", tipo: binario}
+v_prof:        {nota: "CNES-PF não carregado nesta fase"}
+v_hab:         {nota: "CNES-HB não carregado nesta fase"}
+v_hemo:        {nota: "CNES-SR/EQ não carregados nesta fase"}
+v_tipo_estab:  {ind: "f.est_nat_jur", tipo: categorico, agg: "100.0*avg(case when f.est_nat_jur like '1%' then 1 else 0 end)", agg_nome: pct_partos_em_hospital_publico, nota: "natureza jurídica iniciada por 1 = administração pública; CONFERIR"}
+
+# ---- IBGE e território
+v_pop:        {nota: "população por sexo e idade não carregada; o denominador é nascidos vivos"}
+v_idhm:       {nota: "Atlas/PNUD não carregado nesta fase"}
+v_saneamento: {nota: "Censo não carregado nesta fase"}
+v_esf:        {nota: "e-Gestor não carregado nesta fase"}
+v_pbf:        {nota: "CadÚnico não carregado nesta fase"}
+v_territorio: {ind: "f.regiao_saude_res_cod", tipo: categorico}
+
+# ---- Derivadas
+d_dist:       {nota: "roteamento (OSRM) não implementado nesta fase"}
+d_fora:       {ind: "f.parto_fora_municipio", tipo: binario, terr: "t.pct_parto_fora_municipio"}
+d_utin_prox:  {nota: "roteamento (OSRM) não implementado nesta fase"}
+d_oferta_nv:  {terr: "t.leitos_obst_por_1000nv"}
+d_tx_ces:     {ind: "f.cesarea", tipo: binario, terr: "t.pct_cesarea"}
+d_mni:        {terr: "t.tx_mort_neonatal_precoce", nota: "SIM por residência, 0-6 dias por 1.000 NV; sem vínculo individual DN↔DO nos microdados públicos (desfecho só territorial)"}
+d_perinatal:  {nota: "óbitos fetais ainda não agregados no ind_territorio"}
+d_rmm:        {terr: "t.rmm_declarada", nota: "sem correção por investigação; pequenos números"}
+d_nearmiss:   {terr: "t.near_miss_por_1000nv"}
+d_transfer:   {terr: "t.transferencias_obst_por_1000nv"}
+d_evit:       {nota: "lista de causas evitáveis ainda não codificada (grupo_causa por capítulo disponível)"}
+d_utin_uso:   {terr: "t.rn_uti_por_1000nv"}
+d_peregr:     {nao_mensuravel: true}
+d_sus:        {terr: "t.pct_partos_sus"}
+
+# ---- Não mensuráveis nas bases administrativas
+n_percep:     {nao_mensuravel: true}
+n_autonomia:  {nao_mensuravel: true}
+n_respeito:   {nao_mensuravel: true}
+n_satisf:     {nao_mensuravel: true}
+n_acomod:     {nao_mensuravel: true}
+n_custo:      {nao_mensuravel: true}
+n_intervalo:  {nao_mensuravel: true}
+n_nutri:      {nao_mensuravel: true}
+n_conteudo_pn: {nao_mensuravel: true}
+
+# ---- Necessidade de leitos (Caderno 1 / Projeto Parâmetros NESCON-UFMG; modelo necessidade_leitos)
+d_gestantes_est:  {terr: "nl.gestantes_estimadas", nota: "NV x 1,05 (fator de sub-registro)"}
+d_leitos_obst_nec: {terr: "nl.leitos_obst_nec_rc", nota: "fórmula da Rede Cegonha; ver também leitos_obst_sus_nec_eq1"}
+d_utin_nec:       {terr: "nl.leitos_utin_nec_rc", nota: "2 leitos de UTIN por 1.000 NV; ver também leitos_utin_sus_nec_eq3"}
+d_saldo_obst:     {terr: "nl.saldo_obst_rc", nota: "existente (CNES) - necessário; negativo = déficit"}
+d_saldo_utin:     {terr: "nl.saldo_utin_rc"}
+d_razao_utin:     {terr: "nl.razao_utin_rc"}
+d_fnr:            {terr: "nl.fnr", nota: "100/PIr: peso dos não residentes nos hospitais do território"}
+d_tmp_obst:       {terr: "nl.tmp_obst_obs"}
+d_p_uti_neonat:   {terr: "nl.p_uti_neonat_obs"}

@@ -1,0 +1,7 @@
+proc_rea,tipo_parto,alto_risco,descricao
+0310010039,vaginal,nao,Parto normal
+0310010047,vaginal,sim,Parto normal em gestação de alto risco
+0411010034,cesarea,nao,Parto cesariano
+0411010026,cesarea,sim,Parto cesariano em gestação de alto risco
+0411010042,cesarea,nao,Parto cesariano com laqueadura tubária
+0310010055,vaginal,nao,Parto normal em centro de parto normal (CPN)

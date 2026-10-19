@@ -1,0 +1,106 @@
+name: nascer
+
+services:
+  # 1) Baixa os arquivos do DATASUS (FTP), converte DBC -> Parquet em ./data/bronze
+  ingest:
+    build: ./ingest
+    env_file: .env
+    volumes:
+      - ./data:/data
+      - ./ingest:/app          # scripts montados: alterações valem sem reconstruir a imagem
+    command: ["python", "download_datasus.py"]
+
+  # 1b) Tabelas territoriais (IBGE + base territorial do DATASUS)
+  territorio:
+    build: ./ingest
+    env_file: .env
+    volumes:
+      - ./data:/data
+      - ./ingest:/app
+    command: ["python", "territorio.py"]
+
+  # 1c) Malhas (polígonos) para o app e para a vizinhança da análise espacial: mapas do TabWin (.MAP), shapefile
+  #     ou GeoJSON na pasta MALHA_DIR_HOST do .env (padrão ./data/malhas) -> app/public/data/malha_*.geojson
+  malha:
+    build: ./ingest
+    env_file: .env
+    environment:
+      MALHA_DIR: /malhas
+      APP_DATA: /app/public/data
+    volumes:
+      - ./data:/data
+      - ./app:/app
+      - ./ingest:/app_src
+      - ${MALHA_DIR_HOST:-./data/malhas}:/malhas:ro
+    working_dir: /app_src
+    command: ["python", "malha.py"]
+
+  # 2) Transformações (dbt + DuckDB): bronze -> silver -> gold em ./data/warehouse/nascer.duckdb
+  dbt:
+    build: ./dbt
+    env_file: .env
+    working_dir: /dbt
+    environment:
+      DBT_PROFILES_DIR: /dbt
+    volumes:
+      - ./data:/data
+      - ./dbt:/dbt
+      - ./plano:/plano
+    command: ["dbt", "build"]
+
+  # 3) Lê o plano exportado do painel e gera o modelo gold correspondente
+  plano:
+    build: ./dbt
+    env_file: .env
+    working_dir: /dbt
+    environment:
+      DBT_PROFILES_DIR: /dbt
+    volumes:
+      - ./data:/data
+      - ./dbt:/dbt
+      - ./plano:/plano
+    command: ["sh", "-c", "python /plano/plano2dbt.py /plano/plano_analise.json && dbt run --select plano"]
+
+  # 4) Consultas ad hoc ao warehouse (exporta CSV para ./data/export)
+  consulta:
+    build: ./dbt
+    env_file: .env
+    working_dir: /dbt
+    volumes:
+      - ./data:/data
+      - ./scripts:/scripts
+    entrypoint: ["python", "/scripts/consulta.py"]
+
+  # 4b) Análises em Python sobre o warehouse: tipologia (clusters), sífilis congênita × taxas e áreas quentes (BYM2)
+  analise:
+    build: ./analise
+    env_file: .env
+    working_dir: /analise
+    environment:
+      APP_DATA: /app/public/data     # malha do IBGE (vizinhança por polígonos) é lida/baixada aqui
+    volumes:
+      - ./data:/data
+      - ./analise:/analise
+      - ./app:/app
+    command: ["sh", "-c", "python cluster_municipios.py && python correlacoes.py && python espacial.py"]
+
+  # 5) Exporta o warehouse para os JSON que o app lê (./app/public/data) e baixa a malha do IBGE
+  exportar:
+    build: ./dbt
+    env_file: .env
+    working_dir: /app
+    environment:
+      APP_DATA: /app/public/data
+    volumes:
+      - ./data:/data
+      - ./app:/app
+    command: ["python", "/app/export_app.py"]
+
+  # 6) Servidor web estático do app (deck.gl). Abra http://localhost:8080
+  app:
+    image: nginx:1.27-alpine
+    ports:
+      - "127.0.0.1:8080:80"    # só a própria máquina alcança; troque para "8080:80" para expor na rede local
+    volumes:
+      - ./app/public:/usr/share/nginx/html:ro
+    restart: unless-stopped

@@ -1,0 +1,4 @@
+pyreaddbc==2.0.4
+dbfread==2.0.7
+pyarrow>=17
+requests>=2.32

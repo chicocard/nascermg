@@ -1,0 +1,677 @@
+{
+ "uf": "MG",
+ "uf_cod": "31",
+ "anos": [
+  2022,
+  2023
+ ],
+ "ano_ref": 2023,
+ "gerado_em": "2026-10-19T15:48:01.572039+00:00",
+ "nivel_comparacao": "macrorregiao",
+ "totais": {
+  "2022": {
+   "ano": 2022,
+   "nv": 235061,
+   "pct_ces": 58.4,
+   "pct_ces_sem_tp": 34.6,
+   "pct_fora": 38.7,
+   "pct_fora_reg": 14.3,
+   "tmn": 8.07,
+   "tmnp": 6.04,
+   "obitos_neo": 1897,
+   "obitos_neo_prec": 1420,
+   "obitos_mat": 89,
+   "rmm": 37.9,
+   "pct_pn": 78.6,
+   "pct_sus": 66.8,
+   "utin": 923,
+   "leitos_obst": 4205,
+   "rn_uti": 10940
+  },
+  "2023": {
+   "ano": 2023,
+   "nv": 233916,
+   "pct_ces": 59.1,
+   "pct_ces_sem_tp": 36.0,
+   "pct_fora": 39.1,
+   "pct_fora_reg": 14.5,
+   "tmn": 7.92,
+   "tmnp": 5.7,
+   "obitos_neo": 1853,
+   "obitos_neo_prec": 1334,
+   "obitos_mat": 77,
+   "rmm": 32.9,
+   "pct_pn": 80.2,
+   "pct_sus": 63.4,
+   "utin": 941,
+   "leitos_obst": 4229,
+   "rn_uti": 10662
+  }
+ },
+ "variaveis": {
+  "pct_parto_fora_municipio": {
+   "nome": "Partos fora do município de residência",
+   "unid": "%",
+   "paleta": "seq",
+   "desc": "Nascidos vivos cujo município do parto difere do de residência da mãe."
+  },
+  "pct_parto_fora_regiao": {
+   "nome": "Partos fora da região de saúde",
+   "unid": "%",
+   "paleta": "seq"
+  },
+  "pct_cesarea": {
+   "nome": "Taxa de cesárea",
+   "unid": "%",
+   "paleta": "seq"
+  },
+  "pct_cesarea_sem_tp": {
+   "nome": "Cesárea sem trabalho de parto",
+   "unid": "% dos nascimentos",
+   "paleta": "seq"
+  },
+  "tx_mort_neonatal_precoce": {
+   "nome": "Mortalidade neonatal precoce (0-6 dias)",
+   "unid": "por mil NV",
+   "paleta": "seq",
+   "dec": 2
+  },
+  "tx_mort_neonatal": {
+   "nome": "Mortalidade neonatal (0-27 dias)",
+   "unid": "por mil NV",
+   "paleta": "seq",
+   "dec": 2
+  },
+  "pct_prenatal_adequado": {
+   "nome": "Pré-natal adequado (Kotelchuck)",
+   "unid": "%",
+   "paleta": "seq_inv"
+  },
+  "pct_prematuro": {
+   "nome": "Prematuridade (< 37 semanas)",
+   "unid": "%",
+   "paleta": "seq"
+  },
+  "pct_baixo_peso": {
+   "nome": "Baixo peso ao nascer (< 2.500 g)",
+   "unid": "%",
+   "paleta": "seq"
+  },
+  "pct_partos_sus": {
+   "nome": "Partos SUS / nascidos vivos",
+   "unid": "%",
+   "paleta": "seq"
+  },
+  "leitos_utin_por_1000nv": {
+   "nome": "Leitos de UTI neonatal por mil NV (localização)",
+   "unid": "por mil NV",
+   "paleta": "seq_inv",
+   "dec": 2
+  },
+  "saldo_utin_rc": {
+   "nome": "Saldo de leitos de UTIN (existente − necessário, Rede Cegonha)",
+   "unid": "leitos",
+   "paleta": "div",
+   "dec": 1
+  },
+  "saldo_obst_rc": {
+   "nome": "Saldo de leitos obstétricos (existente − necessário)",
+   "unid": "leitos",
+   "paleta": "div",
+   "dec": 1
+  },
+  "rmm_declarada": {
+   "nome": "Razão de mortalidade materna declarada",
+   "unid": "por 100 mil NV",
+   "paleta": "seq"
+  },
+  "near_miss_por_1000nv": {
+   "nome": "Near miss materno (proxy SIH)",
+   "unid": "por mil NV",
+   "paleta": "seq",
+   "dec": 2
+  },
+  "rn_uti_por_1000nv": {
+   "nome": "Recém-nascidos em UTI (SIH) por mil NV",
+   "unid": "por mil NV",
+   "paleta": "seq"
+  },
+  "fnr": {
+   "nome": "Fator de não residentes (Fnr)",
+   "unid": "",
+   "paleta": "seq",
+   "dec": 2
+  },
+  "tx_sifc_por_1000nv": {
+   "nome": "Sífilis congênita (casos por mil NV)",
+   "unid": "por mil NV",
+   "paleta": "seq",
+   "dec": 1,
+   "correlacao": true,
+   "desc": "Casos notificados no SINAN por município de residência da mãe, no ano do diagnóstico; só nos anos com arquivo do SINAN carregado."
+  },
+  "pct_sifc_sem_prenatal": {
+   "nome": "Sífilis congênita: mãe sem pré-natal",
+   "unid": "% dos casos",
+   "paleta": "seq"
+  },
+  "pct_sifc_trat_inadequado": {
+   "nome": "Sífilis congênita: tratamento materno inadequado ou não feito",
+   "unid": "% dos casos",
+   "paleta": "seq"
+  },
+  "esp:sifc:classe": {
+   "nome": "Áreas quentes: sífilis congênita",
+   "unid": "",
+   "paleta": "cat",
+   "esp": "sifc",
+   "campo": "classe",
+   "categorias": [
+    {
+     "id": 4,
+     "tipo": "quente+",
+     "rotulo": "quente, alta confiança (P ≥ 95%)",
+     "cor": "#e34948",
+     "cor_escura": "#e66767",
+     "n": 0
+    },
+    {
+     "id": 3,
+     "tipo": "quente",
+     "rotulo": "área quente (P ≥ 80%)",
+     "cor": "#f0a3a3",
+     "cor_escura": "#8a3b3b",
+     "n": 0
+    },
+    {
+     "id": 2,
+     "tipo": "indef.",
+     "rotulo": "indefinida",
+     "cor": "#d3dae1",
+     "cor_escura": "#46525f",
+     "n": 0
+    },
+    {
+     "id": 1,
+     "tipo": "fria",
+     "rotulo": "risco abaixo do estadual (P ≤ 20%)",
+     "cor": "#86b6ef",
+     "cor_escura": "#3987e5",
+     "n": 0
+    }
+   ],
+   "anos": [
+    2022,
+    2023
+   ],
+   "desc": "Probabilidade a posteriori de o risco relativo suavizado (modelo BYM2) ser maior que 1. Sífilis congênita, por residência."
+  },
+  "esp:sifc:rr": {
+   "nome": "Risco relativo suavizado: sífilis congênita",
+   "unid": "RR (1 = média estadual)",
+   "paleta": "div_inv",
+   "esp": "sifc",
+   "campo": "rr",
+   "dec": 2,
+   "quebras": [
+    0.67,
+    0.9,
+    1.1,
+    1.5
+   ],
+   "anos": [
+    2022,
+    2023
+   ]
+  },
+  "esp:sifc:prob": {
+   "nome": "P(RR > 1): sífilis congênita",
+   "unid": "probabilidade",
+   "paleta": "seq",
+   "esp": "sifc",
+   "campo": "prob",
+   "dec": 2,
+   "quebras": [
+    0.2,
+    0.5,
+    0.8,
+    0.95
+   ],
+   "anos": [
+    2022,
+    2023
+   ]
+  },
+  "esp:neonatal:classe": {
+   "nome": "Áreas quentes: mortalidade neonatal (0-27 dias)",
+   "unid": "",
+   "paleta": "cat",
+   "esp": "neonatal",
+   "campo": "classe",
+   "categorias": [
+    {
+     "id": 4,
+     "tipo": "quente+",
+     "rotulo": "quente, alta confiança (P ≥ 95%)",
+     "cor": "#e34948",
+     "cor_escura": "#e66767",
+     "n": 0
+    },
+    {
+     "id": 3,
+     "tipo": "quente",
+     "rotulo": "área quente (P ≥ 80%)",
+     "cor": "#f0a3a3",
+     "cor_escura": "#8a3b3b",
+     "n": 0
+    },
+    {
+     "id": 2,
+     "tipo": "indef.",
+     "rotulo": "indefinida",
+     "cor": "#d3dae1",
+     "cor_escura": "#46525f",
+     "n": 0
+    },
+    {
+     "id": 1,
+     "tipo": "fria",
+     "rotulo": "risco abaixo do estadual (P ≤ 20%)",
+     "cor": "#86b6ef",
+     "cor_escura": "#3987e5",
+     "n": 0
+    }
+   ],
+   "anos": [
+    2022,
+    2023
+   ],
+   "desc": "Probabilidade a posteriori de o risco relativo suavizado (modelo BYM2) ser maior que 1. Mortalidade neonatal (0-27 dias), por residência."
+  },
+  "esp:neonatal:rr": {
+   "nome": "Risco relativo suavizado: mortalidade neonatal (0-27 dias)",
+   "unid": "RR (1 = média estadual)",
+   "paleta": "div_inv",
+   "esp": "neonatal",
+   "campo": "rr",
+   "dec": 2,
+   "quebras": [
+    0.67,
+    0.9,
+    1.1,
+    1.5
+   ],
+   "anos": [
+    2022,
+    2023
+   ]
+  },
+  "esp:neonatal:prob": {
+   "nome": "P(RR > 1): mortalidade neonatal (0-27 dias)",
+   "unid": "probabilidade",
+   "paleta": "seq",
+   "esp": "neonatal",
+   "campo": "prob",
+   "dec": 2,
+   "quebras": [
+    0.2,
+    0.5,
+    0.8,
+    0.95
+   ],
+   "anos": [
+    2022,
+    2023
+   ]
+  },
+  "esp:neonatal_precoce:classe": {
+   "nome": "Áreas quentes: mortalidade neonatal precoce (0-6 dias)",
+   "unid": "",
+   "paleta": "cat",
+   "esp": "neonatal_precoce",
+   "campo": "classe",
+   "categorias": [
+    {
+     "id": 4,
+     "tipo": "quente+",
+     "rotulo": "quente, alta confiança (P ≥ 95%)",
+     "cor": "#e34948",
+     "cor_escura": "#e66767",
+     "n": 0
+    },
+    {
+     "id": 3,
+     "tipo": "quente",
+     "rotulo": "área quente (P ≥ 80%)",
+     "cor": "#f0a3a3",
+     "cor_escura": "#8a3b3b",
+     "n": 0
+    },
+    {
+     "id": 2,
+     "tipo": "indef.",
+     "rotulo": "indefinida",
+     "cor": "#d3dae1",
+     "cor_escura": "#46525f",
+     "n": 0
+    },
+    {
+     "id": 1,
+     "tipo": "fria",
+     "rotulo": "risco abaixo do estadual (P ≤ 20%)",
+     "cor": "#86b6ef",
+     "cor_escura": "#3987e5",
+     "n": 0
+    }
+   ],
+   "anos": [
+    2022,
+    2023
+   ],
+   "desc": "Probabilidade a posteriori de o risco relativo suavizado (modelo BYM2) ser maior que 1. Mortalidade neonatal precoce (0-6 dias), por residência."
+  },
+  "esp:neonatal_precoce:rr": {
+   "nome": "Risco relativo suavizado: mortalidade neonatal precoce (0-6 dias)",
+   "unid": "RR (1 = média estadual)",
+   "paleta": "div_inv",
+   "esp": "neonatal_precoce",
+   "campo": "rr",
+   "dec": 2,
+   "quebras": [
+    0.67,
+    0.9,
+    1.1,
+    1.5
+   ],
+   "anos": [
+    2022,
+    2023
+   ]
+  },
+  "esp:neonatal_precoce:prob": {
+   "nome": "P(RR > 1): mortalidade neonatal precoce (0-6 dias)",
+   "unid": "probabilidade",
+   "paleta": "seq",
+   "esp": "neonatal_precoce",
+   "campo": "prob",
+   "dec": 2,
+   "quebras": [
+    0.2,
+    0.5,
+    0.8,
+    0.95
+   ],
+   "anos": [
+    2022,
+    2023
+   ]
+  },
+  "esp:materna:classe": {
+   "nome": "Áreas quentes: mortalidade materna declarada",
+   "unid": "",
+   "paleta": "cat",
+   "esp": "materna",
+   "campo": "classe",
+   "categorias": [
+    {
+     "id": 4,
+     "tipo": "quente+",
+     "rotulo": "quente, alta confiança (P ≥ 95%)",
+     "cor": "#e34948",
+     "cor_escura": "#e66767",
+     "n": 0
+    },
+    {
+     "id": 3,
+     "tipo": "quente",
+     "rotulo": "área quente (P ≥ 80%)",
+     "cor": "#f0a3a3",
+     "cor_escura": "#8a3b3b",
+     "n": 0
+    },
+    {
+     "id": 2,
+     "tipo": "indef.",
+     "rotulo": "indefinida",
+     "cor": "#d3dae1",
+     "cor_escura": "#46525f",
+     "n": 0
+    },
+    {
+     "id": 1,
+     "tipo": "fria",
+     "rotulo": "risco abaixo do estadual (P ≤ 20%)",
+     "cor": "#86b6ef",
+     "cor_escura": "#3987e5",
+     "n": 0
+    }
+   ],
+   "anos": [
+    2022,
+    2023
+   ],
+   "desc": "Probabilidade a posteriori de o risco relativo suavizado (modelo BYM2) ser maior que 1. Mortalidade materna declarada, por residência."
+  },
+  "esp:materna:rr": {
+   "nome": "Risco relativo suavizado: mortalidade materna declarada",
+   "unid": "RR (1 = média estadual)",
+   "paleta": "div_inv",
+   "esp": "materna",
+   "campo": "rr",
+   "dec": 2,
+   "quebras": [
+    0.67,
+    0.9,
+    1.1,
+    1.5
+   ],
+   "anos": [
+    2022,
+    2023
+   ]
+  },
+  "esp:materna:prob": {
+   "nome": "P(RR > 1): mortalidade materna declarada",
+   "unid": "probabilidade",
+   "paleta": "seq",
+   "esp": "materna",
+   "campo": "prob",
+   "dec": 2,
+   "quebras": [
+    0.2,
+    0.5,
+    0.8,
+    0.95
+   ],
+   "anos": [
+    2022,
+    2023
+   ]
+  },
+  "cluster": {
+   "nome": "Tipologia dos municípios (agrupamento)",
+   "unid": "",
+   "paleta": "cat",
+   "so_municipio": true,
+   "desc": "Grupos de municípios por tamanho, distâncias (UTI neonatal, UTI adulto, cesárea, parto), fluxos, oferta e processo; A = sem serviço de parto local, B = com serviço.",
+   "categorias": [
+    {
+     "id": 1,
+     "tipo": "A1",
+     "estrato": "A",
+     "rotulo": "médios, sem serviço de parto, UTIN até 40 km",
+     "n": 173,
+     "pct_nv": 10.43206809715615,
+     "tmnp": 5.7640421878832475,
+     "tmnp_ic": [
+      5.110828121797733,
+      6.4775942853749635
+     ],
+     "nv_ano": 141.39884393063585,
+     "dist_utin_km": 30.84992611065269,
+     "dist_cesarea_km": 15.657342026058473,
+     "pct_evasao_partos": 99.32658995119087,
+     "pct_evasao_regiao": 14.75103423009089,
+     "pct_invasao_cesareas": 0.0,
+     "pct_prenatal_adequado": 79.5073570863232,
+     "pct_cesarea": 63.68215355398853,
+     "distintivas": "nv_ano ↑, leitos_obst_por_1000nv ↓, dist_media_km ↓"
+    },
+    {
+     "id": 2,
+     "tipo": "A2",
+     "estrato": "A",
+     "rotulo": "médios, sem serviço de parto, UTIN a 40-100 km, parte dos partos fora da região",
+     "n": 88,
+     "pct_nv": 4.080583909232223,
+     "tmnp": 6.270575325286095,
+     "tmnp_ic": [
+      5.198823400698013,
+      7.498150405546436
+     ],
+     "nv_ano": 108.73295454545455,
+     "dist_utin_km": 63.25772721159004,
+     "dist_cesarea_km": 28.604515628265947,
+     "pct_evasao_partos": 94.96850761659947,
+     "pct_evasao_regiao": 29.80861469778739,
+     "pct_invasao_cesareas": 0.0,
+     "pct_prenatal_adequado": 79.28880695626229,
+     "pct_cesarea": 59.011311463823766,
+     "distintivas": "leitos_obst_por_1000nv ↑, razao_atracao ↑, pct_evasao_partos ↓"
+    },
+    {
+     "id": 3,
+     "tipo": "A3",
+     "estrato": "A",
+     "rotulo": "pequenos, sem serviço de parto, UTIN a 40-100 km, parte dos partos fora da região",
+     "n": 350,
+     "pct_nv": 7.244065273989983,
+     "tmnp": 6.034203632296236,
+     "tmnp_ic": [
+      5.236355115140236,
+      6.919232118452874
+     ],
+     "nv_ano": 48.53285714285714,
+     "dist_utin_km": 63.5086322712324,
+     "dist_cesarea_km": 28.41215914835398,
+     "pct_evasao_partos": 99.15482803040727,
+     "pct_evasao_regiao": 24.34250269250742,
+     "pct_invasao_cesareas": 0.0,
+     "pct_prenatal_adequado": 77.42379790711382,
+     "pct_cesarea": 59.27991422397744,
+     "distintivas": "nv_ano ↓, leitos_obst_por_1000nv ↓, dist_media_km ↑"
+    },
+    {
+     "id": 4,
+     "tipo": "B1",
+     "estrato": "B",
+     "rotulo": "médios, com parto e cesárea local, UTIN a 40-100 km",
+     "n": 133,
+     "pct_nv": 11.902289451295053,
+     "tmnp": 6.234436303050932,
+     "tmnp_ic": [
+      5.59651672517802,
+      6.925139052341162
+     ],
+     "nv_ano": 209.84586466165413,
+     "dist_utin_km": 71.18430232110079,
+     "dist_cesarea_km": 2.49335941219526,
+     "pct_evasao_partos": 36.848691977077486,
+     "pct_evasao_regiao": 15.946062656321876,
+     "pct_invasao_cesareas": 23.12415239742513,
+     "pct_prenatal_adequado": 79.47483651162636,
+     "pct_cesarea": 68.78329836922306,
+     "distintivas": "nv_ano ↓, leitos_obst_por_1000nv ↑, tem_utin ↓"
+    },
+    {
+     "id": 5,
+     "tipo": "B2",
+     "estrato": "B",
+     "rotulo": "médios-grandes, com parto e cesárea local, UTIN a 40-100 km",
+     "n": 68,
+     "pct_nv": 22.36911405036921,
+     "tmnp": 6.129296703715707,
+     "tmnp_ic": [
+      5.664619967376177,
+      6.621929039369654
+     ],
+     "nv_ano": 771.3676470588235,
+     "dist_utin_km": 55.217767438248025,
+     "dist_cesarea_km": 0.9394434377703522,
+     "pct_evasao_partos": 34.967404849301204,
+     "pct_evasao_regiao": 18.607201923748338,
+     "pct_invasao_cesareas": 25.402302437121886,
+     "pct_prenatal_adequado": 76.86948582932278,
+     "pct_cesarea": 63.64658601473243,
+     "distintivas": "leitos_obst_por_1000nv ↓, nv_ano ↑, tem_utin ↓"
+    },
+    {
+     "id": 6,
+     "tipo": "B3",
+     "estrato": "B",
+     "rotulo": "grandes, polo de partos e cesáreas, com UTI neonatal",
+     "n": 41,
+     "pct_nv": 43.97187921795739,
+     "tmnp": 5.6057182205239116,
+     "tmnp_ic": [
+      5.28718015250851,
+      5.938430789710922
+     ],
+     "nv_ano": 2514.8536585365855,
+     "dist_utin_km": 0.0,
+     "dist_cesarea_km": 0.0,
+     "pct_evasao_partos": 6.034555445357406,
+     "pct_evasao_regiao": 4.369687750121674,
+     "pct_invasao_cesareas": 43.195187363621294,
+     "pct_prenatal_adequado": 80.78874437573852,
+     "pct_cesarea": 60.441022529385165,
+     "distintivas": "tem_utin ↑, nv_ano ↑, dist_utin_km ↓"
+    }
+   ],
+   "tmnp_uf": 5.872,
+   "anos": [
+    2022,
+    2023
+   ]
+  },
+  "tip:dist_utin_km": {
+   "nome": "Distância à UTI neonatal mais próxima",
+   "unid": "km",
+   "paleta": "seq",
+   "so_municipio": true,
+   "tipologia": "dist_utin_km",
+   "dec": 0
+  },
+  "tip:dist_cesarea_km": {
+   "nome": "Distância ao município que realiza cesáreas",
+   "unid": "km",
+   "paleta": "seq",
+   "so_municipio": true,
+   "tipologia": "dist_cesarea_km",
+   "dec": 0
+  },
+  "tip:dist_media_km": {
+   "nome": "Distância média percorrida para o parto",
+   "unid": "km",
+   "paleta": "seq",
+   "so_municipio": true,
+   "tipologia": "dist_media_km",
+   "dec": 0
+  },
+  "tip:pct_invasao_cesareas": {
+   "nome": "Cesáreas realizadas em mães de outros municípios",
+   "unid": "%",
+   "paleta": "seq",
+   "so_municipio": true,
+   "tipologia": "pct_invasao_cesareas"
+  },
+  "tip:tmnp_eb": {
+   "nome": "Mortalidade neonatal precoce estabilizada (Bayes empírico)",
+   "unid": "por mil NV",
+   "paleta": "seq",
+   "so_municipio": true,
+   "tipologia": "tmnp_eb",
+   "dec": 2
+  }
+ }
+}

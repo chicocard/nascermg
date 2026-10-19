@@ -1,0 +1,13 @@
+# dados baixados, warehouse e exportações: ficam fora do repositório (reproduzíveis com o pipeline)
+/data/
+# chaves/configuração local
+.env
+# artefatos de execução
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/.user.yml
+__pycache__/
+*.pyc
+*.zip
+# os JSON/GeoJSON do app (app/public/data) SÃO versionados: são agregados e é o que o GitHub Pages publica

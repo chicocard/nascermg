@@ -1,0 +1,29 @@
+cobranca,descricao,grupo,conferido
+11,Alta curado,alta,nao
+12,Alta melhorado,alta,nao
+14,Alta a pedido,alta,nao
+15,Alta com previsão de retorno para acompanhamento,alta,nao
+16,Alta por evasão,alta,nao
+18,Alta por outros motivos,alta,nao
+19,Alta de paciente agudo em psiquiatria,alta,nao
+21,Permanência por características próprias da doença,permanencia,nao
+22,Permanência por intercorrência,permanencia,nao
+23,Permanência por impossibilidade sócio-familiar,permanencia,nao
+24,Permanência por processo de doação de órgãos (doador vivo),permanencia,nao
+25,Permanência por processo de doação de órgãos (doador morto),permanencia,nao
+26,Permanência por mudança de procedimento,permanencia,nao
+27,Permanência por reoperação,permanencia,nao
+28,Permanência por outros motivos,permanencia,nao
+31,Transferência para outro estabelecimento,transferencia,nao
+32,Transferência para internação domiciliar,transferencia,nao
+41,Óbito com declaração de óbito fornecida pelo médico assistente,obito,nao
+42,Óbito com declaração de óbito fornecida pelo IML,obito,nao
+43,Óbito com declaração de óbito fornecida pelo SVO,obito,nao
+51,Encerramento administrativo,administrativo,nao
+61,Alta da mãe/puérpera e do recém-nascido,alta_obstetrica,nao
+62,Alta da mãe/puérpera e permanência do recém-nascido,alta_obst_rn_permanece,nao
+63,Alta da mãe/puérpera e óbito do recém-nascido,alta_obst_rn_obito,nao
+64,Alta da mãe/puérpera com óbito fetal,alta_obst_obito_fetal,nao
+65,Óbito da gestante e do concepto,obito_materno,nao
+66,Óbito da mãe/puérpera e alta do recém-nascido,obito_materno,nao
+67,Óbito da mãe/puérpera e permanência do recém-nascido,obito_materno,nao

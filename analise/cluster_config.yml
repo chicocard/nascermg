@@ -1,0 +1,64 @@
+# Tipologia de municípios por agrupamento (k-means sobre variáveis padronizadas).
+# Edite e rode:  .\scripts\run.ps1 cluster
+
+# modo:
+#   determinantes -> agrupa só por contexto, acesso, fluxos e oferta; a mortalidade NÃO entra no agrupamento e é
+#                    descrita por tipo (permite perguntar se a mortalidade difere entre tipos de município).
+#   completo      -> inclui também os desfechos (mortalidade neonatal, prematuridade, baixo peso) nas variáveis.
+modo: determinantes
+
+# estratificação prévia: "realiza_partos" separa os municípios SEM serviço de parto local (estrato A) dos COM
+# serviço (estrato B) antes de agrupar — a distinção é estrutural e, sem ela, domina o agrupamento e esconde a
+# heterogeneidade dentro de cada estrato. Use "nenhuma" para agrupar todos juntos.
+estratificar_por: realiza_partos
+
+# número de grupos POR ESTRATO: "auto" escolhe pela silhueta entre k_min e k_max; ou um inteiro fixo (ex.: 3).
+# k=2 quase sempre vence a silhueta com uma divisão trivial (tem/não tem UTIN); por isso o mínimo padrão é 3.
+k: auto
+k_min: 3
+k_max: 4
+# um k é descartado se produzir grupo com menos municípios que isto
+tamanho_minimo: 15
+
+# cada bloco conceitual (tamanho, acesso, fluxos, oferta, processo, desfechos) recebe o mesmo peso total no
+# agrupamento (peso da variável = 1/raiz do nº de variáveis do bloco); com "nao", cada variável pesa 1.
+equilibrar_blocos: sim
+
+# anos usados (vazio = todos os anos do warehouse, somados: taxas de áreas pequenas ficam menos instáveis)
+anos: []
+
+# estabilização de taxas de mortalidade por município (Bayes empírico): a taxa municipal é puxada para a taxa
+# da região de saúde com um "peso" equivalente a este número de nascidos vivos. Com 500, um município com
+# 100 NV acumulados fica perto da região; com 5.000 NV, perto do próprio valor.
+peso_prior_nv: 500
+
+# um município "realiza cesáreas" / "realiza partos" se ocorrem nele ao menos este número por ano
+limiar_cesareas_ano: 30
+limiar_partos_ano: 30
+
+# variáveis candidatas: nome interno -> {transform: nenhuma | log1p (antes da padronização), bloco, rotulo}.
+# Para tirar uma variável do agrupamento, apague a linha. Variáveis constantes dentro de um estrato são
+# descartadas automaticamente (ex.: "cesáreas recebidas" nos municípios sem serviço de parto).
+variaveis:
+  determinantes:
+    nv_ano:                 {transform: log1p,   bloco: tamanho,  rotulo: "Nascidos vivos por ano"}
+    populacao:              {transform: log1p,   bloco: tamanho,  rotulo: "População (IBGE)"}   # ignorada sem populacao_ibge.parquet
+    dist_utin_km:           {transform: log1p,   bloco: acesso,   rotulo: "Distância à UTI neonatal mais próxima (km)"}
+    dist_uti_adulto_km:     {transform: log1p,   bloco: acesso,   rotulo: "Distância à UTI adulto mais próxima (km)"}
+    dist_cesarea_km:        {transform: log1p,   bloco: acesso,   rotulo: "Distância ao município que realiza cesáreas (km)"}
+    dist_parto_km:          {transform: log1p,   bloco: acesso,   rotulo: "Distância ao município que realiza partos (km)"}
+    dist_media_km:          {transform: log1p,   bloco: acesso,   rotulo: "Distância média percorrida para o parto (km)"}
+    pct_evasao_partos:      {transform: nenhuma, bloco: fluxos,   rotulo: "Partos de residentes fora do município (%)"}
+    pct_evasao_regiao:      {transform: nenhuma, bloco: fluxos,   rotulo: "Partos de residentes fora da região (%)"}
+    pct_invasao_cesareas:   {transform: nenhuma, bloco: fluxos,   rotulo: "Cesáreas realizadas em mães de outros municípios (%)"}
+    razao_atracao:          {transform: log1p,   bloco: fluxos,   rotulo: "Partos realizados / partos de residentes"}
+    leitos_obst_por_1000nv: {transform: log1p,   bloco: oferta,   rotulo: "Leitos obstétricos por mil NV"}
+    tem_utin:               {transform: nenhuma, bloco: oferta,   rotulo: "Tem UTI neonatal (0/1)"}
+    pct_prenatal_adequado:  {transform: nenhuma, bloco: processo, rotulo: "Pré-natal adequado (%)"}
+    pct_partos_sus:         {transform: nenhuma, bloco: processo, rotulo: "Partos SUS / NV (%)"}
+    pct_cesarea:            {transform: nenhuma, bloco: processo, rotulo: "Cesáreas (%)"}
+  desfechos:
+    tmnp_eb:                {transform: nenhuma, bloco: desfechos, rotulo: "Mortalidade neonatal precoce estabilizada (por mil NV)"}
+    tmn_eb:                 {transform: nenhuma, bloco: desfechos, rotulo: "Mortalidade neonatal estabilizada (por mil NV)"}
+    pct_prematuro:          {transform: nenhuma, bloco: desfechos, rotulo: "Prematuridade (%)"}
+    pct_baixo_peso:         {transform: nenhuma, bloco: desfechos, rotulo: "Baixo peso ao nascer (%)"}

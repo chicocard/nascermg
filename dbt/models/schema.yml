@@ -1,0 +1,87 @@
+version: 2
+
+models:
+  - name: stg_sinasc
+    description: Nascidos vivos tipados (uma linha por DN).
+    columns:
+      - name: dt_nasc
+        tests: [not_null]
+      - name: parto
+        tests:
+          - accepted_values:
+              arguments: {values: ['1', '2', '9']}
+              config: {severity: warn}
+      - name: numerodn
+        tests:
+          - unique:
+              config: {severity: warn}
+
+  - name: stg_sim_do
+    columns:
+      - name: dt_obito
+        tests: [not_null]
+      - name: idade_dias
+        tests:
+          - not_null:
+              config: {severity: warn}
+
+  - name: stg_sih_rd
+    columns:
+      - name: n_aih
+        tests: [not_null]
+
+  - name: dim_municipio
+    columns:
+      - name: cod7
+        tests: [not_null, unique]
+      - name: cod6
+        tests: [not_null, unique]
+
+  - name: dim_estabelecimento
+    tests:
+      - combinacao_unica:
+          arguments: {combination: [cnes, ano]}
+
+  - name: fato_nascimentos
+    columns:
+      - name: codmunres7
+        tests:
+          - not_null:
+              config: {severity: warn}
+      - name: cesarea
+        tests:
+          - accepted_values:
+              arguments: {values: [0, 1], quote: false}
+
+  - name: fato_obitos_neonatais
+    columns:
+      - name: idade_dias
+        tests:
+          - accepted_values:
+              arguments:
+                values: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]
+                quote: false
+
+  - name: ind_territorio
+    columns:
+      - name: nascidos_vivos
+        tests: [not_null]
+      - name: pct_cesarea
+        tests:
+          - entre:
+              arguments: {minimo: 0, maximo: 100}
+      - name: tx_sifc_por_1000nv
+        tests:
+          - entre:
+              arguments: {minimo: 0, maximo: 200}
+
+  - name: fato_sifilis_congenita
+    description: Casos confirmados de sífilis congênita (SINAN) por residência; ano = ano do diagnóstico.
+    columns:
+      - name: codmunres6
+        tests: [not_null]
+      - name: evolucao
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['1','2','3','4','5','9']
